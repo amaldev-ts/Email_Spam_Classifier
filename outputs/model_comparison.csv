@@ -1,0 +1,9 @@
+Experiment,Feature Extraction,Vocabulary Settings,var_smoothing,Accuracy,Spam Precision,Spam Recall,Spam F1-score,False Positive Rate
+"1. Baseline (CountVec, default vs)",CountVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=english",1e-09,0.8295,0.4149,0.9141,0.5707,0.1825
+2. CountVec + Tuned var_smoothing,CountVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=english",0.08,0.9835,0.9664,0.8984,0.9312,0.0044
+3. TF-IDF + Default var_smoothing,TfidfVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=english",1e-09,0.8256,0.4044,0.8594,0.55,0.1792
+4. TF-IDF + Tuned var_smoothing,TfidfVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=english",2.0,0.9671,0.8456,0.8984,0.8712,0.0232
+"5. CountVec + Bigrams (1, 2)","CountVectorizer (1, 2 n-grams)","max_features=2000, min_df=2, bigrams, stop_words=english",0.08,0.9777,0.9907,0.8281,0.9021,0.0011
+6. CountVec + No Stop Words,CountVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=None",0.08,0.9554,0.9659,0.6641,0.787,0.0033
+7. CountVec + Compact Vocab 1500,CountVectorizer,"max_features=1500, min_df=2, unigrams, stop_words=english",0.08,0.9835,0.9664,0.8984,0.9312,0.0044
+8. Final Model (CountVec + Balanced vs),CountVectorizer,"max_features=2000, min_df=2, unigrams, stop_words=english",0.05,0.9845,0.9516,0.9219,0.9365,0.0066
