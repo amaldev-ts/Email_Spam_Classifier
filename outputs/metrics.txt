@@ -1,27 +1,39 @@
 EMAIL/SMS SPAM CLASSIFICATION - GAUSSIAN NAIVE BAYES
 ================================================================
-Dataset file       : SMSSpamCollection (UCI SMS Spam Collection)
-Total messages     : 5160  (ham: 4518, spam: 642)
-Training samples   : 4128
-Testing samples    : 1032
-Vocabulary size    : 2000 words
-Variance smoothing : 0.05
-Random seed        : 42
+Dataset File       : SMSSpamCollection
+Total Messages     : 5,160  (Ham: 4,518, Spam: 642)
+Training Samples   : 4,128
+Testing Samples    : 1,032
+Vocabulary Size    : 2,000 words
+Variance Smoothing : 0.05
+Random Seed        : 42
 
-RESULTS ON THE TEST SET (spam = positive class)
+HELD-OUT TEST SET EVALUATION (Spam = Positive Class)
 ----------------------------------------------------------------
-Accuracy            : 0.9845 (98.45%)  [Baseline: 82.95% | +15.50%]
-Spam Precision      : 0.9516 (95.16%)  [Baseline: 41.49% | +53.67%]
-Spam Recall         : 0.9219 (92.19%)  [Baseline: 91.41% | +0.78%]
-Spam F1-score       : 0.9365 (93.65%)  [Baseline: 57.07% | +36.58%]
-False Positive Rate : 0.0066 (0.66%)  [Baseline: 18.25% | -17.59%]
+Accuracy            : 0.9845 (98.45%)
+Spam Precision      : 0.9516 (95.16%)
+Spam Recall         : 0.9219 (92.19%)
+Spam F1-score       : 0.9365 (93.65%)
+False Positive Rate : 0.0066 (0.66%)
 
-CONFUSION MATRIX (rows = actual, columns = predicted)
-                 Pred Ham   Pred Spam
-Actual Ham       898        6         
-Actual Spam      10         118       
-(TN = 898, FP = 6, FN = 10, TP = 118)
-False Positives reduced from 165 down to 6 (96.4% reduction).
+COMPARISON AGAINST UNREGULARIZED BASELINE (var_smoothing=1e-9):
+  Accuracy    : 82.95%  ->  98.45%  (+15.50%)
+  Precision   : 41.49%  ->  95.16%  (+53.67%)
+  Recall      : 91.41%  ->  92.19%  (+0.78%)
+  F1-Score    : 57.07%  ->  93.65%  (+36.58%)
+  FP Rate     : 18.25%  ->  0.66%  (-17.59%)
+  False Positives dropped from 165 down to 6 (96.4% reduction).
+
+CONFUSION MATRIX BREAKDOWN
+----------------------------------------------------------------
+                 Predicted Ham   Predicted Spam
+Actual Ham       898             6              
+Actual Spam      10              118            
+
+True Negatives  (TN) = 898   : Legitimate messages correctly left in Inbox.
+False Positives (FP) = 6     : Legitimate messages incorrectly flagged as Spam.
+False Negatives (FN) = 10    : Spam messages that slipped into Inbox.
+True Positives  (TP) = 118   : Spam messages successfully filtered.
 
 CLASSIFICATION REPORT
 ----------------------------------------------------------------
@@ -34,21 +46,16 @@ CLASSIFICATION REPORT
    macro avg       0.97      0.96      0.96      1032
 weighted avg       0.98      0.98      0.98      1032
 
-METRIC DEFINITIONS & PRECISION-RECALL TRADE-OFF
+PRECISION-RECALL TRADE-OFF & OPERATIONAL SIGNIFICANCE
 ----------------------------------------------------------------
-Accuracy            : Fraction of all test messages classified correctly.
-Precision (Spam)    : Out of messages flagged as SPAM, how many truly were spam.
-                      Low precision causes False Positives (legitimate ham sent to spam).
-Recall (Spam)       : Out of all actual SPAM messages, the fraction correctly caught.
-                      Low recall causes False Negatives (spam slips into the inbox).
-F1-score            : Harmonic mean of precision and recall balancing both error types.
-False Positive Rate : FP / (FP + TN) = fraction of legitimate messages misclassified.
+In spam filtering, False Positives carry a far higher operational cost than
+False Negatives. A missed legitimate email (e.g., job offer, verification code,
+or urgent business communication) can cause severe real-world harm. In contrast,
+a false negative is merely an annoyance easily discarded by the user.
 
-Why GaussianNB Baseline Produced High False Positives:
-CountVectorizer produces sparse count matrices where most words have zero counts.
-With default var_smoothing=1e-9, feature variances collapse near zero for rare words.
-When a test ham message contains even one word never seen in ham during training,
-the Gaussian probability density becomes infinitesimally small, causing the model
-to wrongly predict spam with extreme overconfidence.
-Tuning var_smoothing to 0.05 provides variance regularization, solving this problem
-and driving Spam Precision from 41.49% to 95.16% while keeping Recall over 92%.
+Unregularized GaussianNB collapses on sparse text features because rare words
+induce near-zero variances. A single unexpected token in a legitimate message
+yields an astronomically small Gaussian probability density, falsely labeling
+the message as spam. Regularizing feature variances via var_smoothing=0.05
+resolves variance collapse, driving Precision up by +53.67% while maintaining
+over 92% Recall on held-out test data.

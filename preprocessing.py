@@ -1,67 +1,92 @@
 """
 preprocessing.py
 ----------------
-Text cleaning and numerical feature extraction.
+Text cleaning, numerical feature extraction, and dense array transformation.
 
-Feature type: word frequency (bag-of-words) using CountVectorizer.
+Feature type: word frequency (bag-of-words) via CountVectorizer.
 
 Why dense arrays?
-    CountVectorizer returns a SPARSE matrix (it stores only non-zero counts).
-    GaussianNB does not accept sparse input, so we convert the matrix to a
-    DENSE NumPy array with .toarray() before training / predicting.
+    CountVectorizer generates a SPARSE matrix (storing only non-zero word counts).
+    scikit-learn's GaussianNB requires continuous feature values and does not accept
+    sparse matrices. Therefore, we convert the sparse matrix to a DENSE NumPy array
+    using .toarray() before training or inference.
 
-Memory note:
-    A dense matrix stores every cell, including all the zeros:
-        memory = rows x columns x bytes_per_number
-    To keep this small we (1) limit the vocabulary to MAX_FEATURES words and
-    (2) use float32 (4 bytes) instead of float64 (8 bytes).
-    Example: 4,500 messages x 2,000 words x 4 bytes ~= 36 MB.
+Memory Management:
+    A dense matrix stores every cell, including zeros:
+        Memory (bytes) = rows x columns x bytes_per_element
+    To maintain a light footprint:
+      1. We constrain the vocabulary (default max_features=2,000 words).
+      2. We cast to float32 (4 bytes per cell) instead of float64 (8 bytes).
+      Example: 4,128 training messages x 2,000 features x 4 bytes ~= 33 MB.
 """
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import FunctionTransformer
 
-# Vocabulary settings (optimized via stratified cross-validation)
-MAX_FEATURES = 2000   # 2000 most informative word features
-MIN_DOC_FREQ = 2      # ignore words appearing in fewer than 2 messages
+# Default vocabulary settings
+MAX_FEATURES = 2000   # Most informative word features
+MIN_DOC_FREQ = 2      # Ignore words appearing in fewer than 2 messages
 
 
-def clean_text(text):
-    """Return text with missing values handled and extra whitespace removed."""
+def clean_text(text) -> str:
+    """Return text with nulls handled and redundant whitespace collapsed."""
     if not isinstance(text, str):
-        return ""                      # None / NaN / numbers -> empty string
-    return " ".join(text.split())      # collapse tabs, newlines, repeated spaces
+        return ""
+    return " ".join(text.split())
 
 
-def build_vectorizer(max_features=MAX_FEATURES, min_df=MIN_DOC_FREQ, stop_words="english", lowercase=True):
-    """Create a NEW, unfitted CountVectorizer (word-frequency features)."""
+def build_vectorizer(
+    max_features=MAX_FEATURES,
+    min_df=MIN_DOC_FREQ,
+    stop_words="english",
+    lowercase=True,
+    ngram_range=(1, 1),
+) -> CountVectorizer:
+    """Create a new, unfitted CountVectorizer for word-frequency extraction."""
     return CountVectorizer(
         lowercase=lowercase,
         stop_words=stop_words,
         max_features=max_features,
         min_df=min_df,
+        ngram_range=ngram_range,
     )
 
 
-def to_dense(sparse_matrix):
-    """Convert a sparse matrix to a dense float32 NumPy array for GaussianNB."""
-    return sparse_matrix.toarray().astype(np.float32)
+def to_dense(sparse_matrix) -> np.ndarray:
+    """Convert a scipy sparse matrix to a dense float32 NumPy array for GaussianNB."""
+    if hasattr(sparse_matrix, "toarray"):
+        return sparse_matrix.toarray().astype(np.float32)
+    return np.asarray(sparse_matrix, dtype=np.float32)
 
 
-def fit_vectorizer(train_texts, max_features=MAX_FEATURES, min_df=MIN_DOC_FREQ):
+def make_dense_transformer() -> FunctionTransformer:
+    """Return a scikit-learn compatible transformer for seamless Pipeline usage."""
+    return FunctionTransformer(
+        func=to_dense,
+        accept_sparse=True,
+        validate=False,
+    )
+
+
+def fit_vectorizer(train_texts, max_features=MAX_FEATURES, min_df=MIN_DOC_FREQ, stop_words="english"):
     """
-    Fit the vectorizer on TRAINING text only (prevents data leakage).
+    Fit the vectorizer on TRAINING text only (prevents test data leakage).
     Returns (fitted_vectorizer, dense_training_features).
     """
-    vectorizer = build_vectorizer(max_features=max_features, min_df=min_df)
+    vectorizer = build_vectorizer(
+        max_features=max_features,
+        min_df=min_df,
+        stop_words=stop_words,
+    )
     sparse_features = vectorizer.fit_transform(train_texts)
     return vectorizer, to_dense(sparse_features)
 
 
 def transform_texts(vectorizer, texts):
     """
-    Transform text with an ALREADY FITTED vectorizer (never re-fits).
-    Used for the test set and for new messages typed by the user.
+    Transform text using an ALREADY FITTED vectorizer (never re-fits).
+    Used for test partitions and new interactive prediction inputs.
     """
     sparse_features = vectorizer.transform(texts)
     return to_dense(sparse_features)

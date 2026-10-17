@@ -1,0 +1,3 @@
+Model,var_smoothing,Accuracy,Precision,Recall,F1-Score,FP_Rate,FP_Count,FN_Count
+Baseline GaussianNB (Unregularized),1e-09,0.8295,0.4149,0.9141,0.5707,0.1825,165,11
+Final Regularized GaussianNB,0.05,0.9845,0.9516,0.9219,0.9365,0.0066,6,10
