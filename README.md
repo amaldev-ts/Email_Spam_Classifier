@@ -172,13 +172,3 @@ python main.py --predict
 ```
 
 ---
-
-## 7. Submission Checklist for CST413
-
-- [x] **Target Algorithm:** Gaussian Naïve Bayes (`GaussianNB`) retained as the core algorithm (not replaced by SVM or Logistic Regression).
-- [x] **Evaluation Integrity:** Cross-validation performed strictly on training data; held-out test set evaluated once.
-- [x] **Dataset Auditing:** Conflicting labels checked (0 found), bad lines tracked, duplicates audited (414 removed).
-- [x] **Systematic Tuning:** Investigated smoothing ($10^{-9}$ to $0.08$), vocabulary capacity ($1000$ to $3000$), $min\_df$, n-grams, and stop words.
-- [x] **Error Analysis:** Documented and analyzed all test False Positives and False Negatives.
-- [x] **Academic Report:** Formatted according to the 10-section structure with Bayes' theorem worked example and SMS vs. email analysis.
-- [x] **Clean Submission:** Exclude `.venv/`, `__pycache__/`, and `.git/` when creating the final ZIP file for submission.
