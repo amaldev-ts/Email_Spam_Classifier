@@ -1,17 +1,14 @@
-# Dataset folder
+# Dataset Folder
 
-Put the dataset here. Nothing is downloaded automatically.
+This directory contains the dataset files for the email spam classifier.
 
-**Recommended: UCI SMS Spam Collection** (SMS messages, NOT emails)
+**Active Dataset: UCI Spambase (Email Dataset)**
+- **Source:** UCI Machine Learning Repository (https://archive.ics.uci.edu/dataset/94/spambase)
+- **Files:**
+  - `spambase.data`: 4,601 email instances with 57 continuous numeric features and 1 binary label.
+  - `spambase.names`: Attribute documentation and feature names.
+  - `spambase.DOCUMENTATION`: Dataset background and source notes from Hewlett-Packard Laboratories.
 
-1. Open https://archive.ics.uci.edu/dataset/228/sms+spam+collection
-2. Click **Download** to get `sms+spam+collection.zip`
-3. Copy the zip into this `data/` folder (do not rename the contents).
-   The program extracts it automatically, or you can extract it yourself so that
-   the file `SMSSpamCollection` is in this folder.
-
-Format of `SMSSpamCollection`: one message per line, `label<TAB>message`, no header,
-label is `ham` or `spam`.
-
-A CSV with a header row also works (e.g. Kaggle `spam.csv` with columns `v1,v2`, or any
-CSV with a label column and a text column such as `label,text`).
+Format of `spambase.data`: Comma-separated values, 58 columns per row.
+- Columns 0–56: 57 continuous features (48 word frequencies, 6 character frequencies, 3 capital run-length metrics).
+- Column 57: Binary class label (`1` = spam, `0` = not spam).

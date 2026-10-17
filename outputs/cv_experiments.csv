@@ -1,0 +1,13 @@
+Experiment,Category,CV_Accuracy_Mean,CV_Accuracy_Std,CV_Precision_Mean,CV_Precision_Std,CV_Recall_Mean,CV_Recall_Std,CV_F1_Mean,CV_F1_Std,Description
+"1. Baseline (Raw, vs=1e-9)",Baseline,0.8207,0.0124,0.7012,0.0152,0.9503,0.0112,0.8069,0.0119,Default unregularized GaussianNB on raw features
+2. Raw vs=1e-5,Raw Variance Sweep,0.6962,0.0105,0.8259,0.0414,0.2924,0.038,0.4299,0.0373,Raw features with minimal smoothing
+3. Raw vs=1e-2,Raw Variance Sweep,0.6571,0.0065,0.7959,0.0561,0.1766,0.0193,0.2881,0.0241,Raw features with moderate smoothing
+4. Raw vs=0.05,Raw Variance Sweep,0.6505,0.0061,0.7811,0.0556,0.1593,0.0204,0.2636,0.0264,Raw features with vs=0.05
+5. Log1p vs=1e-9,Log1p Transformation,0.8255,0.0116,0.709,0.0124,0.9455,0.013,0.8103,0.0121,Log1p transform with default smoothing
+6. Log1p vs=1e-4,Log1p Transformation,0.8367,0.0101,0.7224,0.0112,0.951,0.013,0.8211,0.0108,Log1p transform with vs=1e-4
+7. Log1p vs=1e-3,Log1p Transformation,0.8421,0.0081,0.7263,0.0106,0.9621,0.0072,0.8277,0.0079,Log1p transform with vs=1e-3
+8. Log1p vs=1e-2,Log1p Transformation,0.8658,0.0092,0.7613,0.0118,0.9607,0.008,0.8494,0.0095,Log1p transform with vs=1e-2
+9. Log1p vs=0.05 (Selected),Log1p Transformation,0.8788,0.0133,0.7914,0.0216,0.9414,0.0113,0.8597,0.0141,Optimal Log1p + balanced variance regularization
+10. Log1p vs=0.10,Log1p Transformation,0.8707,0.0112,0.7878,0.0207,0.9207,0.0095,0.8488,0.0111,Log1p with higher smoothing
+11. Log1p + StandardScaler,Scaling & Standardization,0.8318,0.012,0.7162,0.0136,0.9497,0.0135,0.8165,0.0125,Log1p followed by unit variance scaling
+12. Word Features Only (48),Feature Subset,0.8076,0.0082,0.6804,0.0092,0.9655,0.0062,0.7982,0.0075,Exclude punctuation and capital run-lengths

@@ -1,0 +1,3 @@
+Model,Transform,var_smoothing,Accuracy,Precision,Recall,F1-Score,FP_Rate,FP_Count,FN_Count
+"Baseline GaussianNB (Raw, vs=1e-9)",None (Raw),1e-09,0.8339,0.7178,0.9532,0.8189,0.2437,136,17
+Selected Model (9. Log1p vs=0.05 (Selected)),Log1p,0.05,0.8762,0.7875,0.9394,0.8568,0.1649,92,22
