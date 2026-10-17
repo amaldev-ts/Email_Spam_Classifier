@@ -15,7 +15,7 @@
 **An End-to-End Email Spam Classification System on UCI Spambase Implementing Gaussian Naïve Bayes with Log-Transform Distribution Alignment, Variance Regularization, and Leak-Free Cross-Validation.**
 
 ### 1.2 Objective
-The goal of this assignment is to design, implement, evaluate, and critically analyze an end-to-end machine learning system that classifies email messages as either **Legitimate (Ham / Non-Spam, class 0)** or **Spam (class 1)**. In strict alignment with the assignment specification, the primary classification algorithm is **Gaussian Naïve Bayes (`GaussianNB`)**.
+The goal of this assignment is to design, implement, evaluate, and critically analyze an end-to-end machine learning system that classifies email messages as either **Legitimate (Not Spam, class 0)** or **Spam (class 1)**. In strict alignment with the assignment specification, the primary classification algorithm is **Gaussian Naïve Bayes (`GaussianNB`)**.
 
 To ensure authentic domain relevance, this project utilizes the benchmark **UCI Spambase** dataset, which consists of real email messages represented by 57 continuous attributes. The key technical objectives are:
 1. Implement GaussianNB as the core classifier without substituting non-prescribed algorithms.
@@ -50,11 +50,11 @@ After validation and deduplication, the cleaned dataset contains **4,204 unique 
 
 | Class Label | Semantic Meaning | Number of Instances | Class Percentage |
 | :---: | :---: | :---: | :---: |
-| **0** | **Ham (Legitimate Email)** | 2,528 | 60.13% |
+| **0** | **Not Spam (Legitimate Email)** | 2,528 | 60.13% |
 | **1** | **Spam (Unsolicited Email)** | 1,676 | 39.87% |
 | **Total** | **All Cleaned Instances** | **4,204** | **100.00%** |
 
-The class distribution is balanced compared to typical SMS datasets, with approximately a **1.5:1** ratio (60.13% ham vs. 39.87% spam). A baseline majority-class classifier predicting ham would achieve only 60.13% accuracy, confirming that meaningful probabilistic learning is required.
+The class distribution is balanced compared to typical SMS datasets, with approximately a **1.5:1** ratio (60.13% not spam vs. 39.87% spam). A baseline majority-class classifier predicting not spam would achieve only 60.13% accuracy, confirming that meaningful probabilistic learning is required.
 
 ---
 
@@ -74,14 +74,14 @@ The class distribution is balanced compared to typical SMS datasets, with approx
 - **Deterministic Seed:** Fixed random seed (`random_state=42`).
 
 ```
-Cleaned Spambase Dataset: 4,204 instances (2,528 Ham, 1,676 Spam)
+Cleaned Spambase Dataset: 4,204 instances (2,528 Not Spam, 1,676 Spam)
                             │
                             ▼
            Stratified Split (80/20, seed=42)
             ┌───────────────┴───────────────┐
             ▼                               ▼
 Training Partition: 3,363               Held-Out Test Set: 841
-(2,022 Ham, 1,341 Spam)                 (506 Ham, 335 Spam)
+(2,022 Not Spam, 1,341 Spam)             (506 Not Spam, 335 Spam)
             │                                   │
             ▼                                   │ (Strictly isolated;
 5-Fold Stratified CV                            │  never seen during
@@ -154,9 +154,9 @@ $$P(A \mid B) = \frac{P(B \mid A) P(A)}{P(B)}$$
 #### Numerical Worked Example
 Consider an email filtering scenario:
 - Prior probability that an email is spam: $P(A) = 0.20$
-- Prior probability that an email is legitimate ham: $P(\neg A) = 0.80$
+- Prior probability that an email is not spam: $P(\neg A) = 0.80$
 - Probability that an email contains a prominent dollar sign (`$`) given it is spam: $P(B \mid A) = 0.85$
-- Probability that an email contains a prominent dollar sign given it is ham: $P(B \mid \neg A) = 0.10$
+- Probability that an email contains a prominent dollar sign given it is not spam: $P(B \mid \neg A) = 0.10$
 
 By the Law of Total Probability:
 $$P(B) = P(B \cap A) + P(B \cap \neg A) = P(B \mid A)P(A) + P(B \mid \neg A)P(\neg A)$$
@@ -265,18 +265,18 @@ The final selected pipeline (`Log1p` + `GaussianNB(var_smoothing=0.05)`) was ref
 | **False Negatives** | 10 FN | **17 FN** | +7 FN | — |
 
 ### 8.2 Confusion Matrix Breakdown
-The held-out test set contains **506 legitimate Ham emails** and **335 Spam emails**:
+The held-out test set contains **506 legitimate Not Spam emails** and **335 Spam emails**:
 
 ```
 UNREGULARIZED RAW BASELINE:
-                     Predicted Ham    Predicted Spam
-Actual Ham (506) :        369              137       (FP = 137, FPR = 27.08%)
-Actual Spam (335):         10              325       (FN = 10, Recall = 97.01%)
+                     Predicted Not Spam   Predicted Spam
+Actual Not Spam (506):      369                137       (FP = 137, FPR = 27.08%)
+Actual Spam (335):           10                325       (FN = 10, Recall = 97.01%)
 
 FINAL IMPROVED MODEL (Log1p + vs=0.05):
-                     Predicted Ham    Predicted Spam
-Actual Ham (506) :        417               89       (FP = 89, FPR = 17.59%)
-Actual Spam (335):         17              318       (FN = 17, Recall = 94.93%)
+                     Predicted Not Spam   Predicted Spam
+Actual Not Spam (506):      417                 89       (FP = 89, FPR = 17.59%)
+Actual Spam (335):           17                318       (FN = 17, Recall = 94.93%)
 ```
 
 - **True Negatives ($TN = 417$):** 82.41% of legitimate emails correctly delivered.
@@ -286,14 +286,14 @@ Actual Spam (335):         17              318       (FN = 17, Recall = 94.93%)
 
 ### 8.3 Classification Report
 ```
-                precision    recall  f1-score   support
+              precision    recall  f1-score   support
 
-Ham (Non-Spam)       0.96      0.82      0.89       506
-          Spam       0.78      0.95      0.86       335
+    Not Spam       0.96      0.82      0.89       506
+        Spam       0.78      0.95      0.86       335
 
-      accuracy                           0.87       841
-     macro avg       0.87      0.89      0.87       841
-  weighted avg       0.89      0.87      0.88       841
+    accuracy                           0.87       841
+   macro avg       0.87      0.89      0.87       841
+weighted avg       0.89      0.87      0.88       841
 ```
 
 ---
@@ -316,7 +316,7 @@ From the exported error log (`outputs/error_analysis.csv`), we examine the chara
 #### Analysis of False Negatives ($FN = 17$):
 1. **Low-Capitalization Conversational Spam:**
    - *Sample #113:* `capital_run_length_total = 3.0`, `word_freq_you = 4.76`, zero dollar signs, zero exclamation marks.
-   - **Reason:** Sophisticated spam disguised as personal, lower-case conversational messages lacks high capitalization and blatant keywords, blending into the legitimate ham profile.
+   - **Reason:** Sophisticated spam disguised as personal, lower-case conversational messages lacks high capitalization and blatant keywords, blending into the legitimate not-spam profile.
 2. **Deferred Calls-to-Action:**
    - *Sample #77:* `word_freq_will = 1.29`, `capital_run_length_total = 110.0`.
    - **Reason:** Spam messages that ask the recipient to reply or click an unflagged link without using words from the 48 target keywords evade detection.

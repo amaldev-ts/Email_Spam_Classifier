@@ -6,7 +6,7 @@ for the UCI Spambase email classifier.
 
 Probabilistic Basis of GaussianNB on Spambase:
     Under Bayes' theorem, the posterior probability of an email being Spam (class 1)
-    or Ham (class 0) given its 57 continuous features x = [x_1, ..., x_57] is:
+    or Not Spam (class 0) given its 57 continuous features x = [x_1, ..., x_57] is:
         P(C | x) proportional to P(C) * prod_{i=1}^{57} P(x_i | C)
     
     Each continuous feature x_i is modeled as a univariate Gaussian distribution:
@@ -59,12 +59,12 @@ def train_model(X_train, y_train, use_log: bool = True, var_smoothing: float = D
 
 
 def predict_labels(pipeline: Pipeline, X: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
-    """Return predicted class labels (0 = Ham, 1 = Spam)."""
+    """Return predicted class labels (0 = Not Spam, 1 = Spam)."""
     return pipeline.predict(X)
 
 
 def predict_probabilities(pipeline: Pipeline, X: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
-    """Return predicted class probabilities [P(Ham), P(Spam)]."""
+    """Return predicted class probabilities [P(Not Spam), P(Spam)]."""
     return pipeline.predict_proba(X)
 
 

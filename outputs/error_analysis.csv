@@ -1,107 +1,107 @@
 Sample_Index,Error_Type,Actual,Predicted,Top_Indicative_Features,capital_run_total,char_freq_dollar,char_freq_exclamation,word_freq_free
-2,False Positive,Ham,Spam,capital_run_length_total=405.00; capital_run_length_longest=71.00; capital_run_length_average=2.89; word_freq_you=1.90,405.0,0.062,0.374,0.84
-27,False Positive,Ham,Spam,capital_run_length_total=64.00; capital_run_length_longest=11.00; word_freq_internet=2.07; capital_run_length_average=1.52,64.0,0.0,0.0,0.0
-28,False Positive,Ham,Spam,capital_run_length_total=32.00; capital_run_length_longest=8.00; word_freq_you=4.54; word_freq_your=2.72,32.0,0.0,0.164,0.0
-46,False Positive,Ham,Spam,capital_run_length_total=35.00; capital_run_length_longest=13.00; word_freq_report=5.55; capital_run_length_average=3.89,35.0,0.0,0.0,0.0
-54,False Positive,Ham,Spam,capital_run_length_total=135.00; capital_run_length_longest=16.00; word_freq_you=2.34; capital_run_length_average=1.90,135.0,0.0,0.0,0.0
-61,False Positive,Ham,Spam,capital_run_length_total=63.00; capital_run_length_longest=9.00; word_freq_you=3.07; word_freq_your=3.07,63.0,0.0,0.253,0.0
-65,False Positive,Ham,Spam,capital_run_length_total=159.00; capital_run_length_longest=21.00; word_freq_you=3.85; word_freq_your=1.86,159.0,0.0,0.0,0.13
-71,False Positive,Ham,Spam,capital_run_length_total=1763.00; capital_run_length_longest=185.00; capital_run_length_average=2.67; word_freq_will=1.04,1763.0,0.0,0.0,0.0
-77,False Negative,Spam,Ham,capital_run_length_total=110.00; capital_run_length_longest=36.00; capital_run_length_average=2.39; word_freq_will=1.29,110.0,0.0,0.0,0.0
-89,False Positive,Ham,Spam,capital_run_length_total=300.00; capital_run_length_longest=70.00; capital_run_length_average=5.26; word_freq_1999=0.81,300.0,0.0,0.0,0.4
-98,False Positive,Ham,Spam,capital_run_length_total=909.00; capital_run_length_longest=87.00; capital_run_length_average=4.43; word_freq_order=0.94,909.0,0.025,0.0,0.09
-101,False Positive,Ham,Spam,capital_run_length_total=377.00; capital_run_length_longest=200.00; capital_run_length_average=17.95; word_freq_direct=2.11,377.0,0.0,0.0,0.0
-103,False Positive,Ham,Spam,capital_run_length_total=246.00; capital_run_length_longest=39.00; capital_run_length_average=3.90; word_freq_your=1.26,246.0,0.0,0.074,0.0
-105,False Positive,Ham,Spam,capital_run_length_total=14.00; word_freq_parts=7.40; word_freq_free=3.70; capital_run_length_longest=3.00,14.0,0.0,0.0,3.7
-113,False Negative,Spam,Ham,word_freq_you=4.76; capital_run_length_total=3.00; capital_run_length_average=1.00; capital_run_length_longest=1.00,3.0,0.0,0.0,0.0
-121,False Negative,Spam,Ham,capital_run_length_total=78.00; capital_run_length_longest=21.00; capital_run_length_average=3.54; word_freq_report=2.06,78.0,0.326,0.163,0.0
-130,False Negative,Spam,Ham,capital_run_length_total=56.00; capital_run_length_longest=11.00; word_freq_your=1.81; word_freq_will=1.81,56.0,0.0,0.309,0.0
-136,False Positive,Ham,Spam,capital_run_length_total=91.00; capital_run_length_longest=47.00; capital_run_length_average=2.53; word_freq_you=2.00,91.0,0.0,0.0,0.0
-165,False Positive,Ham,Spam,capital_run_length_total=126.00; capital_run_length_longest=37.00; capital_run_length_average=3.31; char_freq_!=2.38,126.0,0.0,2.378,1.38
-173,False Positive,Ham,Spam,capital_run_length_total=10.00; word_freq_internet=5.88; capital_run_length_average=1.00; capital_run_length_longest=1.00,10.0,0.0,0.0,0.0
-176,False Positive,Ham,Spam,capital_run_length_total=86.00; capital_run_length_longest=47.00; word_freq_you=5.50; capital_run_length_average=2.46,86.0,0.0,0.13,0.0
-182,False Positive,Ham,Spam,capital_run_length_total=1506.00; capital_run_length_longest=1488.00; capital_run_length_average=251.00; word_freq_george=1.46,1506.0,0.0,0.0,0.58
-186,False Positive,Ham,Spam,capital_run_length_total=38.00; capital_run_length_longest=7.00; word_freq_you=2.97; capital_run_length_average=1.52,38.0,0.0,0.102,0.0
-192,False Positive,Ham,Spam,capital_run_length_total=266.00; capital_run_length_longest=43.00; word_freq_font=6.75; capital_run_length_average=6.19,266.0,0.0,0.073,0.0
-206,False Positive,Ham,Spam,word_freq_your=9.09; capital_run_length_total=5.00; word_freq_you=4.54; capital_run_length_average=1.00,5.0,0.0,0.0,0.0
-215,False Positive,Ham,Spam,capital_run_length_total=227.00; capital_run_length_longest=43.00; word_freq_your=2.81; capital_run_length_average=2.55,227.0,0.0,0.06,1.8
-223,False Positive,Ham,Spam,capital_run_length_total=196.00; capital_run_length_longest=64.00; capital_run_length_average=4.67; word_freq_1999=1.11,196.0,0.0,0.0,0.0
-225,False Positive,Ham,Spam,capital_run_length_total=312.00; capital_run_length_longest=37.00; capital_run_length_average=3.15; word_freq_you=1.49,312.0,0.069,0.0,0.0
-228,False Positive,Ham,Spam,capital_run_length_total=44.00; capital_run_length_longest=5.00; word_freq_you=3.37; word_freq_addresses=2.24,44.0,0.0,0.0,0.0
-230,False Positive,Ham,Spam,capital_run_length_total=723.00; capital_run_length_longest=121.00; capital_run_length_average=2.81; word_freq_meeting=2.12,723.0,0.0,0.161,0.0
-243,False Positive,Ham,Spam,capital_run_length_total=333.00; capital_run_length_longest=70.00; capital_run_length_average=3.66; word_freq_you=1.47,333.0,0.0,0.471,0.29
-245,False Positive,Ham,Spam,capital_run_length_total=414.00; capital_run_length_longest=97.00; capital_run_length_average=8.12; word_freq_you=4.73,414.0,0.0,0.045,0.63
-248,False Positive,Ham,Spam,capital_run_length_total=21.00; capital_run_length_longest=9.00; word_freq_our=5.00; capital_run_length_average=3.50,21.0,0.0,0.0,0.0
-252,False Positive,Ham,Spam,capital_run_length_total=1122.00; capital_run_length_longest=55.00; capital_run_length_average=2.73; word_freq_conference=1.54,1122.0,0.021,0.01,0.0
-257,False Positive,Ham,Spam,capital_run_length_total=328.00; capital_run_length_longest=43.00; word_freq_font=8.81; capital_run_length_average=7.29,328.0,0.0,0.074,0.0
-269,False Positive,Ham,Spam,capital_run_length_total=29.00; word_freq_you=5.60; capital_run_length_longest=4.00; word_freq_free=2.40,29.0,0.0,0.235,2.4
-272,False Positive,Ham,Spam,capital_run_length_total=1026.00; capital_run_length_longest=49.00; capital_run_length_average=2.21; word_freq_you=2.06,1026.0,0.0,0.073,0.0
-274,False Positive,Ham,Spam,capital_run_length_total=13.00; word_freq_your=6.66; word_freq_you=3.33; capital_run_length_longest=3.00,13.0,0.0,0.0,0.0
-287,False Positive,Ham,Spam,capital_run_length_total=11.00; word_freq_will=6.25; word_freq_all=1.56; word_freq_mail=1.56,11.0,0.0,0.0,0.0
-293,False Negative,Spam,Ham,capital_run_length_total=505.00; capital_run_length_longest=41.00; capital_run_length_average=2.34; word_freq_will=0.96,505.0,0.0,0.0,0.12
-295,False Positive,Ham,Spam,capital_run_length_total=189.00; capital_run_length_longest=21.00; capital_run_length_average=6.10; word_freq_edu=0.58,189.0,0.0,0.0,0.0
-307,False Positive,Ham,Spam,capital_run_length_total=19.00; word_freq_you=5.55; capital_run_length_longest=5.00; word_freq_all=1.85,19.0,0.0,0.692,0.0
-333,False Positive,Ham,Spam,capital_run_length_total=26.00; word_freq_you=2.56; capital_run_length_longest=2.00; word_freq_your=1.70,26.0,0.0,0.149,0.0
-334,False Positive,Ham,Spam,capital_run_length_total=72.00; capital_run_length_longest=12.00; word_freq_you=3.13; word_freq_will=2.35,72.0,0.213,0.284,0.0
-339,False Positive,Ham,Spam,capital_run_length_total=53.00; capital_run_length_longest=48.00; char_freq_!=19.13; capital_run_length_average=13.25,53.0,0.0,19.131,0.0
-343,False Positive,Ham,Spam,capital_run_length_total=693.00; capital_run_length_longest=121.00; capital_run_length_average=3.08; word_freq_meeting=2.23,693.0,0.0,0.134,0.0
-350,False Positive,Ham,Spam,capital_run_length_total=184.00; capital_run_length_longest=18.00; capital_run_length_average=1.53; word_freq_our=0.47,184.0,0.0,0.149,0.0
-354,False Positive,Ham,Spam,word_freq_you=8.69; capital_run_length_total=8.00; word_freq_your=6.52; capital_run_length_longest=3.00,8.0,0.0,0.0,0.0
-355,False Positive,Ham,Spam,capital_run_length_total=13.00; capital_run_length_longest=3.00; word_freq_all=1.63; word_freq_will=1.63,13.0,0.0,0.0,1.63
-359,False Positive,Ham,Spam,capital_run_length_total=137.00; capital_run_length_longest=4.00; word_freq_your=2.04; capital_run_length_average=1.06,137.0,0.0,0.0,0.0
-362,False Negative,Spam,Ham,capital_run_length_total=63.00; capital_run_length_longest=18.00; capital_run_length_average=3.94; word_freq_re=1.36,63.0,0.215,0.0,0.0
-366,False Positive,Ham,Spam,capital_run_length_total=685.00; capital_run_length_longest=107.00; capital_run_length_average=5.19; word_freq_you=1.05,685.0,0.053,0.035,0.0
-372,False Positive,Ham,Spam,capital_run_length_total=1789.00; capital_run_length_longest=43.00; capital_run_length_average=3.77; word_freq_font=3.47,1789.0,0.0,0.055,0.0
-374,False Positive,Ham,Spam,capital_run_length_total=108.00; capital_run_length_longest=47.00; word_freq_you=3.70; capital_run_length_average=2.92,108.0,0.857,0.0,0.0
-375,False Positive,Ham,Spam,capital_run_length_total=80.00; capital_run_length_longest=18.00; char_freq_!=5.05; word_freq_you=1.97,80.0,0.0,5.054,0.28
-397,False Negative,Spam,Ham,capital_run_length_total=69.00; capital_run_length_longest=23.00; capital_run_length_average=4.60; word_freq_technology=1.33,69.0,0.213,0.426,0.0
-398,False Positive,Ham,Spam,capital_run_length_total=138.00; capital_run_length_longest=54.00; capital_run_length_average=15.33; word_freq_business=3.57,138.0,0.0,0.055,0.0
-403,False Positive,Ham,Spam,capital_run_length_total=582.00; capital_run_length_longest=82.00; capital_run_length_average=5.15; word_freq_you=1.89,582.0,0.0,0.024,0.13
-424,False Positive,Ham,Spam,capital_run_length_total=1866.00; capital_run_length_longest=28.00; capital_run_length_average=4.41; char_freq_[=0.32,1866.0,0.0,0.0,0.0
-436,False Negative,Spam,Ham,capital_run_length_total=28.00; capital_run_length_longest=6.00; word_freq_you=2.56; capital_run_length_average=1.33,28.0,0.0,0.0,0.0
-463,False Positive,Ham,Spam,capital_run_length_total=45.00; capital_run_length_longest=12.00; capital_run_length_average=3.21; word_freq_remove=3.07,45.0,0.0,0.251,0.0
-481,False Positive,Ham,Spam,capital_run_length_total=146.00; capital_run_length_longest=13.00; word_freq_your=2.31; word_freq_you=2.05,146.0,0.0,0.413,0.25
-493,False Positive,Ham,Spam,capital_run_length_total=376.00; capital_run_length_longest=200.00; capital_run_length_average=17.90; word_freq_direct=2.11,376.0,0.0,0.0,0.0
-495,False Positive,Ham,Spam,capital_run_length_total=147.00; capital_run_length_longest=7.00; capital_run_length_average=1.53; word_freq_will=1.45,147.0,0.037,0.0,0.0
-506,False Negative,Spam,Ham,capital_run_length_total=92.00; capital_run_length_longest=22.00; word_freq_edu=2.73; word_freq_report=2.05,92.0,0.0,0.0,0.0
-514,False Positive,Ham,Spam,capital_run_length_total=635.00; capital_run_length_longest=343.00; capital_run_length_average=10.41; word_freq_you=1.02,635.0,0.0,0.207,0.0
-518,False Positive,Ham,Spam,capital_run_length_total=226.00; capital_run_length_longest=55.00; capital_run_length_average=3.59; word_freq_you=2.73,226.0,0.0,0.064,0.0
-522,False Positive,Ham,Spam,capital_run_length_total=169.00; capital_run_length_longest=20.00; capital_run_length_average=1.80; word_freq_your=1.56,169.0,0.037,0.037,0.0
-529,False Positive,Ham,Spam,capital_run_length_total=389.00; capital_run_length_longest=7.00; word_freq_you=1.16; capital_run_length_average=1.11,389.0,0.0,0.014,0.0
-532,False Positive,Ham,Spam,capital_run_length_total=390.00; capital_run_length_longest=122.00; capital_run_length_average=8.48; word_freq_email=0.44,390.0,0.0,0.0,0.44
-536,False Negative,Spam,Ham,capital_run_length_total=112.00; capital_run_length_longest=22.00; capital_run_length_average=1.87; word_freq_report=0.73,112.0,0.105,0.0,0.0
-547,False Negative,Spam,Ham,capital_run_length_total=126.00; capital_run_length_longest=38.00; capital_run_length_average=3.23; word_freq_edu=1.47,126.0,0.0,0.0,0.0
-549,False Positive,Ham,Spam,capital_run_length_total=285.00; capital_run_length_longest=87.00; capital_run_length_average=3.20; word_freq_hp=1.69,285.0,0.0,0.0,0.0
-568,False Positive,Ham,Spam,capital_run_length_total=67.00; capital_run_length_longest=5.00; word_freq_you=2.30; word_freq_your=1.53,67.0,0.0,0.0,0.0
-569,False Negative,Spam,Ham,capital_run_length_total=145.00; capital_run_length_longest=10.00; capital_run_length_average=1.56; word_freq_all=0.51,145.0,0.0,0.0,0.0
-573,False Positive,Ham,Spam,capital_run_length_total=22.00; word_freq_you=5.00; capital_run_length_longest=4.00; word_freq_all=2.00,22.0,0.0,0.17,0.0
-584,False Positive,Ham,Spam,capital_run_length_total=54.00; word_freq_you=4.45; capital_run_length_longest=4.00; capital_run_length_average=1.20,54.0,0.0,0.0,0.0
-597,False Negative,Spam,Ham,capital_run_length_total=23.00; capital_run_length_longest=9.00; capital_run_length_average=3.83; char_freq_(=0.73,23.0,0.0,0.729,0.0
-603,False Positive,Ham,Spam,capital_run_length_total=73.00; capital_run_length_longest=63.00; capital_run_length_average=9.12; word_freq_you=4.34,73.0,0.0,0.954,0.0
-612,False Positive,Ham,Spam,capital_run_length_total=69.00; capital_run_length_longest=5.00; word_freq_you=4.80; word_freq_your=1.88,69.0,0.0,0.065,0.0
-619,False Negative,Spam,Ham,capital_run_length_total=77.00; capital_run_length_longest=13.00; capital_run_length_average=3.50; char_freq_#=1.34,77.0,0.167,0.0,0.97
-620,False Positive,Ham,Spam,capital_run_length_total=617.00; capital_run_length_longest=45.00; capital_run_length_average=2.80; word_freq_hp=1.08,617.0,0.166,0.0,0.0
-623,False Positive,Ham,Spam,capital_run_length_total=282.00; capital_run_length_longest=55.00; word_freq_you=2.71; capital_run_length_average=2.59,282.0,0.0,0.147,0.49
-628,False Positive,Ham,Spam,capital_run_length_total=1031.00; capital_run_length_longest=81.00; capital_run_length_average=4.67; word_freq_order=0.80,1031.0,0.024,0.0,0.0
-639,False Negative,Spam,Ham,capital_run_length_total=170.00; capital_run_length_longest=11.00; capital_run_length_average=2.07; word_freq_re=0.34,170.0,0.027,0.0,0.17
-640,False Positive,Ham,Spam,capital_run_length_total=499.00; capital_run_length_longest=35.00; capital_run_length_average=3.44; word_freq_edu=0.92,499.0,0.068,0.017,0.0
-652,False Positive,Ham,Spam,capital_run_length_total=21.00; word_freq_you=5.05; word_freq_will=3.03; capital_run_length_longest=3.00,21.0,0.0,0.187,0.0
-657,False Positive,Ham,Spam,capital_run_length_total=149.00; capital_run_length_longest=10.00; word_freq_mail=5.12; capital_run_length_average=1.55,149.0,0.0,0.0,0.0
-693,False Positive,Ham,Spam,capital_run_length_total=330.00; capital_run_length_longest=30.00; word_freq_font=6.29; capital_run_length_average=5.69,330.0,0.0,0.271,0.0
-707,False Positive,Ham,Spam,capital_run_length_total=97.00; capital_run_length_longest=17.00; word_freq_you=3.33; word_freq_your=2.66,97.0,0.0,0.117,0.66
-716,False Negative,Spam,Ham,capital_run_length_total=58.00; capital_run_length_longest=3.00; capital_run_length_average=1.35; word_freq_you=1.32,58.0,0.0,0.291,0.0
-721,False Positive,Ham,Spam,capital_run_length_total=54.00; capital_run_length_longest=6.00; capital_run_length_average=2.00; word_freq_people=1.50,54.0,0.0,0.441,0.75
-728,False Positive,Ham,Spam,capital_run_length_total=75.00; capital_run_length_longest=8.00; word_freq_our=1.53; capital_run_length_average=1.44,75.0,0.0,0.0,0.0
-736,False Positive,Ham,Spam,capital_run_length_total=297.00; capital_run_length_longest=9.00; word_freq_you=4.24; word_freq_your=1.35,297.0,0.0,0.188,0.0
-737,False Positive,Ham,Spam,capital_run_length_total=38.00; capital_run_length_longest=23.00; word_freq_you=3.57; word_freq_your=2.67,38.0,0.0,0.0,0.0
-743,False Negative,Spam,Ham,capital_run_length_total=215.00; capital_run_length_longest=33.00; capital_run_length_average=6.72; word_freq_1999=5.05,215.0,0.088,0.0,0.0
-752,False Positive,Ham,Spam,capital_run_length_total=82.00; capital_run_length_longest=15.00; word_freq_you=4.02; word_freq_your=3.35,82.0,0.0,0.112,0.0
-760,False Positive,Ham,Spam,capital_run_length_total=1995.00; capital_run_length_longest=86.00; capital_run_length_average=2.75; word_freq_conference=0.89,1995.0,0.0,0.033,0.08
-774,False Positive,Ham,Spam,capital_run_length_total=77.00; capital_run_length_longest=18.00; word_freq_you=4.34; capital_run_length_average=1.97,77.0,0.124,0.0,0.0
-776,False Positive,Ham,Spam,capital_run_length_total=41.00; capital_run_length_longest=11.00; word_freq_your=3.50; word_freq_will=2.33,41.0,0.0,0.097,0.58
-778,False Positive,Ham,Spam,capital_run_length_total=122.00; capital_run_length_longest=8.00; word_freq_you=5.09; capital_run_length_average=1.63,122.0,0.0,0.444,0.78
-803,False Positive,Ham,Spam,capital_run_length_total=178.00; capital_run_length_longest=107.00; capital_run_length_average=6.14; word_freq_mail=4.32,178.0,0.0,0.347,0.0
-806,False Positive,Ham,Spam,capital_run_length_total=344.00; capital_run_length_longest=75.00; capital_run_length_average=3.37; word_freq_you=1.08,344.0,0.0,0.0,0.0
-811,False Positive,Ham,Spam,capital_run_length_total=49.00; capital_run_length_longest=15.00; char_freq_!=5.78; capital_run_length_average=2.13,49.0,0.0,5.78,0.0
-812,False Positive,Ham,Spam,capital_run_length_total=3168.00; capital_run_length_longest=102.00; capital_run_length_average=2.23; word_freq_data=1.47,3168.0,0.0,0.016,0.09
-821,False Positive,Ham,Spam,capital_run_length_total=419.00; capital_run_length_longest=63.00; capital_run_length_average=3.08; word_freq_you=1.78,419.0,0.0,0.055,0.0
+2,False Positive,Not Spam,Spam,capital_run_length_total=405.00; capital_run_length_longest=71.00; capital_run_length_average=2.89; word_freq_you=1.90,405.0,0.062,0.374,0.84
+27,False Positive,Not Spam,Spam,capital_run_length_total=64.00; capital_run_length_longest=11.00; word_freq_internet=2.07; capital_run_length_average=1.52,64.0,0.0,0.0,0.0
+28,False Positive,Not Spam,Spam,capital_run_length_total=32.00; capital_run_length_longest=8.00; word_freq_you=4.54; word_freq_your=2.72,32.0,0.0,0.164,0.0
+46,False Positive,Not Spam,Spam,capital_run_length_total=35.00; capital_run_length_longest=13.00; word_freq_report=5.55; capital_run_length_average=3.89,35.0,0.0,0.0,0.0
+54,False Positive,Not Spam,Spam,capital_run_length_total=135.00; capital_run_length_longest=16.00; word_freq_you=2.34; capital_run_length_average=1.90,135.0,0.0,0.0,0.0
+61,False Positive,Not Spam,Spam,capital_run_length_total=63.00; capital_run_length_longest=9.00; word_freq_you=3.07; word_freq_your=3.07,63.0,0.0,0.253,0.0
+65,False Positive,Not Spam,Spam,capital_run_length_total=159.00; capital_run_length_longest=21.00; word_freq_you=3.85; word_freq_your=1.86,159.0,0.0,0.0,0.13
+71,False Positive,Not Spam,Spam,capital_run_length_total=1763.00; capital_run_length_longest=185.00; capital_run_length_average=2.67; word_freq_will=1.04,1763.0,0.0,0.0,0.0
+77,False Negative,Spam,Not Spam,capital_run_length_total=110.00; capital_run_length_longest=36.00; capital_run_length_average=2.39; word_freq_will=1.29,110.0,0.0,0.0,0.0
+89,False Positive,Not Spam,Spam,capital_run_length_total=300.00; capital_run_length_longest=70.00; capital_run_length_average=5.26; word_freq_1999=0.81,300.0,0.0,0.0,0.4
+98,False Positive,Not Spam,Spam,capital_run_length_total=909.00; capital_run_length_longest=87.00; capital_run_length_average=4.43; word_freq_order=0.94,909.0,0.025,0.0,0.09
+101,False Positive,Not Spam,Spam,capital_run_length_total=377.00; capital_run_length_longest=200.00; capital_run_length_average=17.95; word_freq_direct=2.11,377.0,0.0,0.0,0.0
+103,False Positive,Not Spam,Spam,capital_run_length_total=246.00; capital_run_length_longest=39.00; capital_run_length_average=3.90; word_freq_your=1.26,246.0,0.0,0.074,0.0
+105,False Positive,Not Spam,Spam,capital_run_length_total=14.00; word_freq_parts=7.40; word_freq_free=3.70; capital_run_length_longest=3.00,14.0,0.0,0.0,3.7
+113,False Negative,Spam,Not Spam,word_freq_you=4.76; capital_run_length_total=3.00; capital_run_length_average=1.00; capital_run_length_longest=1.00,3.0,0.0,0.0,0.0
+121,False Negative,Spam,Not Spam,capital_run_length_total=78.00; capital_run_length_longest=21.00; capital_run_length_average=3.54; word_freq_report=2.06,78.0,0.326,0.163,0.0
+130,False Negative,Spam,Not Spam,capital_run_length_total=56.00; capital_run_length_longest=11.00; word_freq_your=1.81; word_freq_will=1.81,56.0,0.0,0.309,0.0
+136,False Positive,Not Spam,Spam,capital_run_length_total=91.00; capital_run_length_longest=47.00; capital_run_length_average=2.53; word_freq_you=2.00,91.0,0.0,0.0,0.0
+165,False Positive,Not Spam,Spam,capital_run_length_total=126.00; capital_run_length_longest=37.00; capital_run_length_average=3.31; char_freq_!=2.38,126.0,0.0,2.378,1.38
+173,False Positive,Not Spam,Spam,capital_run_length_total=10.00; word_freq_internet=5.88; capital_run_length_average=1.00; capital_run_length_longest=1.00,10.0,0.0,0.0,0.0
+176,False Positive,Not Spam,Spam,capital_run_length_total=86.00; capital_run_length_longest=47.00; word_freq_you=5.50; capital_run_length_average=2.46,86.0,0.0,0.13,0.0
+182,False Positive,Not Spam,Spam,capital_run_length_total=1506.00; capital_run_length_longest=1488.00; capital_run_length_average=251.00; word_freq_george=1.46,1506.0,0.0,0.0,0.58
+186,False Positive,Not Spam,Spam,capital_run_length_total=38.00; capital_run_length_longest=7.00; word_freq_you=2.97; capital_run_length_average=1.52,38.0,0.0,0.102,0.0
+192,False Positive,Not Spam,Spam,capital_run_length_total=266.00; capital_run_length_longest=43.00; word_freq_font=6.75; capital_run_length_average=6.19,266.0,0.0,0.073,0.0
+206,False Positive,Not Spam,Spam,word_freq_your=9.09; capital_run_length_total=5.00; word_freq_you=4.54; capital_run_length_average=1.00,5.0,0.0,0.0,0.0
+215,False Positive,Not Spam,Spam,capital_run_length_total=227.00; capital_run_length_longest=43.00; word_freq_your=2.81; capital_run_length_average=2.55,227.0,0.0,0.06,1.8
+223,False Positive,Not Spam,Spam,capital_run_length_total=196.00; capital_run_length_longest=64.00; capital_run_length_average=4.67; word_freq_1999=1.11,196.0,0.0,0.0,0.0
+225,False Positive,Not Spam,Spam,capital_run_length_total=312.00; capital_run_length_longest=37.00; capital_run_length_average=3.15; word_freq_you=1.49,312.0,0.069,0.0,0.0
+228,False Positive,Not Spam,Spam,capital_run_length_total=44.00; capital_run_length_longest=5.00; word_freq_you=3.37; word_freq_addresses=2.24,44.0,0.0,0.0,0.0
+230,False Positive,Not Spam,Spam,capital_run_length_total=723.00; capital_run_length_longest=121.00; capital_run_length_average=2.81; word_freq_meeting=2.12,723.0,0.0,0.161,0.0
+243,False Positive,Not Spam,Spam,capital_run_length_total=333.00; capital_run_length_longest=70.00; capital_run_length_average=3.66; word_freq_you=1.47,333.0,0.0,0.471,0.29
+245,False Positive,Not Spam,Spam,capital_run_length_total=414.00; capital_run_length_longest=97.00; capital_run_length_average=8.12; word_freq_you=4.73,414.0,0.0,0.045,0.63
+248,False Positive,Not Spam,Spam,capital_run_length_total=21.00; capital_run_length_longest=9.00; word_freq_our=5.00; capital_run_length_average=3.50,21.0,0.0,0.0,0.0
+252,False Positive,Not Spam,Spam,capital_run_length_total=1122.00; capital_run_length_longest=55.00; capital_run_length_average=2.73; word_freq_conference=1.54,1122.0,0.021,0.01,0.0
+257,False Positive,Not Spam,Spam,capital_run_length_total=328.00; capital_run_length_longest=43.00; word_freq_font=8.81; capital_run_length_average=7.29,328.0,0.0,0.074,0.0
+269,False Positive,Not Spam,Spam,capital_run_length_total=29.00; word_freq_you=5.60; capital_run_length_longest=4.00; word_freq_free=2.40,29.0,0.0,0.235,2.4
+272,False Positive,Not Spam,Spam,capital_run_length_total=1026.00; capital_run_length_longest=49.00; capital_run_length_average=2.21; word_freq_you=2.06,1026.0,0.0,0.073,0.0
+274,False Positive,Not Spam,Spam,capital_run_length_total=13.00; word_freq_your=6.66; word_freq_you=3.33; capital_run_length_longest=3.00,13.0,0.0,0.0,0.0
+287,False Positive,Not Spam,Spam,capital_run_length_total=11.00; word_freq_will=6.25; word_freq_all=1.56; word_freq_mail=1.56,11.0,0.0,0.0,0.0
+293,False Negative,Spam,Not Spam,capital_run_length_total=505.00; capital_run_length_longest=41.00; capital_run_length_average=2.34; word_freq_will=0.96,505.0,0.0,0.0,0.12
+295,False Positive,Not Spam,Spam,capital_run_length_total=189.00; capital_run_length_longest=21.00; capital_run_length_average=6.10; word_freq_edu=0.58,189.0,0.0,0.0,0.0
+307,False Positive,Not Spam,Spam,capital_run_length_total=19.00; word_freq_you=5.55; capital_run_length_longest=5.00; word_freq_all=1.85,19.0,0.0,0.692,0.0
+333,False Positive,Not Spam,Spam,capital_run_length_total=26.00; word_freq_you=2.56; capital_run_length_longest=2.00; word_freq_your=1.70,26.0,0.0,0.149,0.0
+334,False Positive,Not Spam,Spam,capital_run_length_total=72.00; capital_run_length_longest=12.00; word_freq_you=3.13; word_freq_will=2.35,72.0,0.213,0.284,0.0
+339,False Positive,Not Spam,Spam,capital_run_length_total=53.00; capital_run_length_longest=48.00; char_freq_!=19.13; capital_run_length_average=13.25,53.0,0.0,19.131,0.0
+343,False Positive,Not Spam,Spam,capital_run_length_total=693.00; capital_run_length_longest=121.00; capital_run_length_average=3.08; word_freq_meeting=2.23,693.0,0.0,0.134,0.0
+350,False Positive,Not Spam,Spam,capital_run_length_total=184.00; capital_run_length_longest=18.00; capital_run_length_average=1.53; word_freq_our=0.47,184.0,0.0,0.149,0.0
+354,False Positive,Not Spam,Spam,word_freq_you=8.69; capital_run_length_total=8.00; word_freq_your=6.52; capital_run_length_longest=3.00,8.0,0.0,0.0,0.0
+355,False Positive,Not Spam,Spam,capital_run_length_total=13.00; capital_run_length_longest=3.00; word_freq_all=1.63; word_freq_will=1.63,13.0,0.0,0.0,1.63
+359,False Positive,Not Spam,Spam,capital_run_length_total=137.00; capital_run_length_longest=4.00; word_freq_your=2.04; capital_run_length_average=1.06,137.0,0.0,0.0,0.0
+362,False Negative,Spam,Not Spam,capital_run_length_total=63.00; capital_run_length_longest=18.00; capital_run_length_average=3.94; word_freq_re=1.36,63.0,0.215,0.0,0.0
+366,False Positive,Not Spam,Spam,capital_run_length_total=685.00; capital_run_length_longest=107.00; capital_run_length_average=5.19; word_freq_you=1.05,685.0,0.053,0.035,0.0
+372,False Positive,Not Spam,Spam,capital_run_length_total=1789.00; capital_run_length_longest=43.00; capital_run_length_average=3.77; word_freq_font=3.47,1789.0,0.0,0.055,0.0
+374,False Positive,Not Spam,Spam,capital_run_length_total=108.00; capital_run_length_longest=47.00; word_freq_you=3.70; capital_run_length_average=2.92,108.0,0.857,0.0,0.0
+375,False Positive,Not Spam,Spam,capital_run_length_total=80.00; capital_run_length_longest=18.00; char_freq_!=5.05; word_freq_you=1.97,80.0,0.0,5.054,0.28
+397,False Negative,Spam,Not Spam,capital_run_length_total=69.00; capital_run_length_longest=23.00; capital_run_length_average=4.60; word_freq_technology=1.33,69.0,0.213,0.426,0.0
+398,False Positive,Not Spam,Spam,capital_run_length_total=138.00; capital_run_length_longest=54.00; capital_run_length_average=15.33; word_freq_business=3.57,138.0,0.0,0.055,0.0
+403,False Positive,Not Spam,Spam,capital_run_length_total=582.00; capital_run_length_longest=82.00; capital_run_length_average=5.15; word_freq_you=1.89,582.0,0.0,0.024,0.13
+424,False Positive,Not Spam,Spam,capital_run_length_total=1866.00; capital_run_length_longest=28.00; capital_run_length_average=4.41; char_freq_[=0.32,1866.0,0.0,0.0,0.0
+436,False Negative,Spam,Not Spam,capital_run_length_total=28.00; capital_run_length_longest=6.00; word_freq_you=2.56; capital_run_length_average=1.33,28.0,0.0,0.0,0.0
+463,False Positive,Not Spam,Spam,capital_run_length_total=45.00; capital_run_length_longest=12.00; capital_run_length_average=3.21; word_freq_remove=3.07,45.0,0.0,0.251,0.0
+481,False Positive,Not Spam,Spam,capital_run_length_total=146.00; capital_run_length_longest=13.00; word_freq_your=2.31; word_freq_you=2.05,146.0,0.0,0.413,0.25
+493,False Positive,Not Spam,Spam,capital_run_length_total=376.00; capital_run_length_longest=200.00; capital_run_length_average=17.90; word_freq_direct=2.11,376.0,0.0,0.0,0.0
+495,False Positive,Not Spam,Spam,capital_run_length_total=147.00; capital_run_length_longest=7.00; capital_run_length_average=1.53; word_freq_will=1.45,147.0,0.037,0.0,0.0
+506,False Negative,Spam,Not Spam,capital_run_length_total=92.00; capital_run_length_longest=22.00; word_freq_edu=2.73; word_freq_report=2.05,92.0,0.0,0.0,0.0
+514,False Positive,Not Spam,Spam,capital_run_length_total=635.00; capital_run_length_longest=343.00; capital_run_length_average=10.41; word_freq_you=1.02,635.0,0.0,0.207,0.0
+518,False Positive,Not Spam,Spam,capital_run_length_total=226.00; capital_run_length_longest=55.00; capital_run_length_average=3.59; word_freq_you=2.73,226.0,0.0,0.064,0.0
+522,False Positive,Not Spam,Spam,capital_run_length_total=169.00; capital_run_length_longest=20.00; capital_run_length_average=1.80; word_freq_your=1.56,169.0,0.037,0.037,0.0
+529,False Positive,Not Spam,Spam,capital_run_length_total=389.00; capital_run_length_longest=7.00; word_freq_you=1.16; capital_run_length_average=1.11,389.0,0.0,0.014,0.0
+532,False Positive,Not Spam,Spam,capital_run_length_total=390.00; capital_run_length_longest=122.00; capital_run_length_average=8.48; word_freq_email=0.44,390.0,0.0,0.0,0.44
+536,False Negative,Spam,Not Spam,capital_run_length_total=112.00; capital_run_length_longest=22.00; capital_run_length_average=1.87; word_freq_report=0.73,112.0,0.105,0.0,0.0
+547,False Negative,Spam,Not Spam,capital_run_length_total=126.00; capital_run_length_longest=38.00; capital_run_length_average=3.23; word_freq_edu=1.47,126.0,0.0,0.0,0.0
+549,False Positive,Not Spam,Spam,capital_run_length_total=285.00; capital_run_length_longest=87.00; capital_run_length_average=3.20; word_freq_hp=1.69,285.0,0.0,0.0,0.0
+568,False Positive,Not Spam,Spam,capital_run_length_total=67.00; capital_run_length_longest=5.00; word_freq_you=2.30; word_freq_your=1.53,67.0,0.0,0.0,0.0
+569,False Negative,Spam,Not Spam,capital_run_length_total=145.00; capital_run_length_longest=10.00; capital_run_length_average=1.56; word_freq_all=0.51,145.0,0.0,0.0,0.0
+573,False Positive,Not Spam,Spam,capital_run_length_total=22.00; word_freq_you=5.00; capital_run_length_longest=4.00; word_freq_all=2.00,22.0,0.0,0.17,0.0
+584,False Positive,Not Spam,Spam,capital_run_length_total=54.00; word_freq_you=4.45; capital_run_length_longest=4.00; capital_run_length_average=1.20,54.0,0.0,0.0,0.0
+597,False Negative,Spam,Not Spam,capital_run_length_total=23.00; capital_run_length_longest=9.00; capital_run_length_average=3.83; char_freq_(=0.73,23.0,0.0,0.729,0.0
+603,False Positive,Not Spam,Spam,capital_run_length_total=73.00; capital_run_length_longest=63.00; capital_run_length_average=9.12; word_freq_you=4.34,73.0,0.0,0.954,0.0
+612,False Positive,Not Spam,Spam,capital_run_length_total=69.00; capital_run_length_longest=5.00; word_freq_you=4.80; word_freq_your=1.88,69.0,0.0,0.065,0.0
+619,False Negative,Spam,Not Spam,capital_run_length_total=77.00; capital_run_length_longest=13.00; capital_run_length_average=3.50; char_freq_#=1.34,77.0,0.167,0.0,0.97
+620,False Positive,Not Spam,Spam,capital_run_length_total=617.00; capital_run_length_longest=45.00; capital_run_length_average=2.80; word_freq_hp=1.08,617.0,0.166,0.0,0.0
+623,False Positive,Not Spam,Spam,capital_run_length_total=282.00; capital_run_length_longest=55.00; word_freq_you=2.71; capital_run_length_average=2.59,282.0,0.0,0.147,0.49
+628,False Positive,Not Spam,Spam,capital_run_length_total=1031.00; capital_run_length_longest=81.00; capital_run_length_average=4.67; word_freq_order=0.80,1031.0,0.024,0.0,0.0
+639,False Negative,Spam,Not Spam,capital_run_length_total=170.00; capital_run_length_longest=11.00; capital_run_length_average=2.07; word_freq_re=0.34,170.0,0.027,0.0,0.17
+640,False Positive,Not Spam,Spam,capital_run_length_total=499.00; capital_run_length_longest=35.00; capital_run_length_average=3.44; word_freq_edu=0.92,499.0,0.068,0.017,0.0
+652,False Positive,Not Spam,Spam,capital_run_length_total=21.00; word_freq_you=5.05; word_freq_will=3.03; capital_run_length_longest=3.00,21.0,0.0,0.187,0.0
+657,False Positive,Not Spam,Spam,capital_run_length_total=149.00; capital_run_length_longest=10.00; word_freq_mail=5.12; capital_run_length_average=1.55,149.0,0.0,0.0,0.0
+693,False Positive,Not Spam,Spam,capital_run_length_total=330.00; capital_run_length_longest=30.00; word_freq_font=6.29; capital_run_length_average=5.69,330.0,0.0,0.271,0.0
+707,False Positive,Not Spam,Spam,capital_run_length_total=97.00; capital_run_length_longest=17.00; word_freq_you=3.33; word_freq_your=2.66,97.0,0.0,0.117,0.66
+716,False Negative,Spam,Not Spam,capital_run_length_total=58.00; capital_run_length_longest=3.00; capital_run_length_average=1.35; word_freq_you=1.32,58.0,0.0,0.291,0.0
+721,False Positive,Not Spam,Spam,capital_run_length_total=54.00; capital_run_length_longest=6.00; capital_run_length_average=2.00; word_freq_people=1.50,54.0,0.0,0.441,0.75
+728,False Positive,Not Spam,Spam,capital_run_length_total=75.00; capital_run_length_longest=8.00; word_freq_our=1.53; capital_run_length_average=1.44,75.0,0.0,0.0,0.0
+736,False Positive,Not Spam,Spam,capital_run_length_total=297.00; capital_run_length_longest=9.00; word_freq_you=4.24; word_freq_your=1.35,297.0,0.0,0.188,0.0
+737,False Positive,Not Spam,Spam,capital_run_length_total=38.00; capital_run_length_longest=23.00; word_freq_you=3.57; word_freq_your=2.67,38.0,0.0,0.0,0.0
+743,False Negative,Spam,Not Spam,capital_run_length_total=215.00; capital_run_length_longest=33.00; capital_run_length_average=6.72; word_freq_1999=5.05,215.0,0.088,0.0,0.0
+752,False Positive,Not Spam,Spam,capital_run_length_total=82.00; capital_run_length_longest=15.00; word_freq_you=4.02; word_freq_your=3.35,82.0,0.0,0.112,0.0
+760,False Positive,Not Spam,Spam,capital_run_length_total=1995.00; capital_run_length_longest=86.00; capital_run_length_average=2.75; word_freq_conference=0.89,1995.0,0.0,0.033,0.08
+774,False Positive,Not Spam,Spam,capital_run_length_total=77.00; capital_run_length_longest=18.00; word_freq_you=4.34; capital_run_length_average=1.97,77.0,0.124,0.0,0.0
+776,False Positive,Not Spam,Spam,capital_run_length_total=41.00; capital_run_length_longest=11.00; word_freq_your=3.50; word_freq_will=2.33,41.0,0.0,0.097,0.58
+778,False Positive,Not Spam,Spam,capital_run_length_total=122.00; capital_run_length_longest=8.00; word_freq_you=5.09; capital_run_length_average=1.63,122.0,0.0,0.444,0.78
+803,False Positive,Not Spam,Spam,capital_run_length_total=178.00; capital_run_length_longest=107.00; capital_run_length_average=6.14; word_freq_mail=4.32,178.0,0.0,0.347,0.0
+806,False Positive,Not Spam,Spam,capital_run_length_total=344.00; capital_run_length_longest=75.00; capital_run_length_average=3.37; word_freq_you=1.08,344.0,0.0,0.0,0.0
+811,False Positive,Not Spam,Spam,capital_run_length_total=49.00; capital_run_length_longest=15.00; char_freq_!=5.78; capital_run_length_average=2.13,49.0,0.0,5.78,0.0
+812,False Positive,Not Spam,Spam,capital_run_length_total=3168.00; capital_run_length_longest=102.00; capital_run_length_average=2.23; word_freq_data=1.47,3168.0,0.0,0.016,0.09
+821,False Positive,Not Spam,Spam,capital_run_length_total=419.00; capital_run_length_longest=63.00; capital_run_length_average=3.08; word_freq_you=1.78,419.0,0.0,0.055,0.0

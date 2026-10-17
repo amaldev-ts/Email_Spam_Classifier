@@ -1,6 +1,6 @@
 # Email Spam Classification Using Gaussian Naïve Bayes (UCI Spambase)
 
-A production-grade, reproducible machine learning system that classifies emails as **Spam** or **Not Spam (Ham)** strictly implementing scikit-learn's **Gaussian Naïve Bayes (`GaussianNB`)** algorithm on the official **UCI Spambase** dataset with Log-Transform distribution alignment and leak-free 5-fold cross-validation.
+A production-grade, reproducible machine learning system that classifies emails as **Spam** or **Not Spam** strictly implementing scikit-learn's **Gaussian Naïve Bayes (`GaussianNB`)** algorithm on the official **UCI Spambase** dataset with Log-Transform distribution alignment and leak-free 5-fold cross-validation.
 
 > **Dataset Scope:** The dataset used is the benchmark **UCI Spambase** (Hopkins et al., HP Labs, 1999), consisting of **4,601 genuine email instances** characterized by **57 continuous attributes** (48 word-frequency percentages, 6 character-frequency percentages, and 3 capital letter run-length statistics).
 
@@ -18,18 +18,18 @@ This project addresses the distributional challenges of applying continuous `Gau
 | **Spam F1-Score** | 81.56% | **85.71%** | **+4.16%** | +5.10% |
 | **False Positive Rate** | 27.08% (137 FP) | **17.59% (89 FP)** | **-9.49%** | **-35.04% (FP dropped)** |
 
-### Confusion Matrix (Held-Out Test Set: 506 Ham, 335 Spam)
+### Confusion Matrix (Held-Out Test Set: 506 Not Spam, 335 Spam)
 
 ```
 RAW BASELINE MODEL:
-                     Predicted Ham    Predicted Spam
-Actual Ham (506) :        369              137       (137 False Positives, Precision = 70.35%)
-Actual Spam (335):         10              325       (10 False Negatives, Recall = 97.01%)
+                     Predicted Not Spam   Predicted Spam
+Actual Not Spam (506):      369                137       (137 False Positives, Precision = 70.35%)
+Actual Spam (335):           10                325       (10 False Negatives, Recall = 97.01%)
 
 IMPROVED MODEL (Log1p + vs=0.05):
-                     Predicted Ham    Predicted Spam
-Actual Ham (506) :        417               89       (False Positives cut by 35.0% to 89!)
-Actual Spam (335):         17              318       (17 False Negatives, Recall = 94.93%)
+                     Predicted Not Spam   Predicted Spam
+Actual Not Spam (506):      417                 89       (False Positives cut by 35.0% to 89!)
+Actual Spam (335):           17                318       (17 False Negatives, Recall = 94.93%)
 ```
 
 ---
@@ -53,14 +53,14 @@ Applying `Log1p` ($x' = \ln(1 + x)$):
 ## 3. Strict, Leak-Free Evaluation Methodology
 
 ```
-Cleaned Spambase Dataset (4,204 instances: 2,528 Ham, 1,676 Spam)
+Cleaned Spambase Dataset (4,204 instances: 2,528 Not Spam, 1,676 Spam)
                             │
                             ▼
            Stratified Split (80/20, seed=42)
             ┌───────────────┴───────────────┐
             ▼                               ▼
 Training Partition (3,363)              Held-Out Test Set (841)
-(2,022 Ham, 1,341 Spam)                 (506 Ham, 335 Spam)
+(2,022 Not Spam, 1,341 Spam)             (506 Not Spam, 335 Spam)
             │                                   │
             ▼                                   │ (Strictly isolated;
 5-Fold Stratified CV                            │  never seen during tuning)
@@ -160,8 +160,8 @@ Output:
   PREDICTED CLASS  : SPAM
   Confidence Level : High Confidence
 ----------------------------------------------------
-  Ham Probability  : < 0.01%    (p = 0.0000)
-  Spam Probability : > 99.99%   (p = 1.0000)
+  Not Spam Probability : < 0.01%    (p = 0.0000)
+  Spam Probability     : > 99.99%   (p = 1.0000)
 ====================================================
   Top Detected Spambase Signals:
     * word_freq_our               : 10.00
@@ -181,11 +181,11 @@ python predict.py --text "Hi George, please find attached the meeting notes for 
 Output:
 ```
 ====================================================
-  PREDICTED CLASS  : HAM (Non-Spam)
+  PREDICTED CLASS  : NOT SPAM
   Confidence Level : High Confidence
 ----------------------------------------------------
-  Ham Probability  : > 99.99%   (p = 1.0000)
-  Spam Probability : < 0.01%    (p = 0.0000)
+  Not Spam Probability : > 99.99%   (p = 1.0000)
+  Spam Probability     : < 0.01%    (p = 0.0000)
 ====================================================
   Top Detected Spambase Signals:
     * word_freq_our               : 7.69

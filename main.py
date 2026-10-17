@@ -226,7 +226,7 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     print(f"      Conflicting groups   : {info['conflicting_groups_detected']} detected ({info['conflicting_rows_removed']} rows removed)")
     print(f"      Duplicates removed   : {info['duplicates_removed']:,}")
     print(f"      Cleaned dataset      : {info['rows_final']:,} email instances")
-    print(f"      Class distribution   : Ham = {info['ham_count']:,} ({info['ham_pct']:.2f}%), Spam = {info['spam_count']:,} ({info['spam_pct']:.2f}%)")
+    print(f"      Class distribution   : Not Spam = {info['not_spam_count']:,} ({info['not_spam_pct']:.2f}%), Spam = {info['spam_count']:,} ({info['spam_pct']:.2f}%)")
 
     plot_class_distribution(df["label"], OUTPUT_DIR / "class_distribution.png")
 
@@ -242,8 +242,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
         random_state=seed,
         stratify=y,
     )
-    print(f"      Training partition   : {len(X_train):,} samples (Ham: {(y_train == 0).sum():,}, Spam: {(y_train == 1).sum():,})")
-    print(f"      Held-out test set    : {len(X_test):,} samples (Ham: {(y_test == 0).sum():,}, Spam: {(y_test == 1).sum():,})")
+    print(f"      Training partition   : {len(X_train):,} samples (Not Spam: {(y_train == 0).sum():,}, Spam: {(y_train == 1).sum():,})")
+    print(f"      Held-out test set    : {len(X_test):,} samples (Not Spam: {(y_test == 0).sum():,}, Spam: {(y_test == 1).sum():,})")
     print("      Note: Held-out test set is STRICTLY ISOLATED during model tuning.")
 
     # 3. Stratified 5-Fold Cross-Validation on Training Data Only
@@ -307,7 +307,7 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     run_info = {
         "file": info["file"],
         "total": len(df),
-        "ham": info["ham_count"],
+        "not_spam": info["not_spam_count"],
         "spam": info["spam_count"],
         "train_size": len(X_train),
         "test_size": len(X_test),

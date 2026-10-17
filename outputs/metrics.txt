@@ -1,7 +1,7 @@
 EMAIL SPAM CLASSIFICATION - UCI SPAMBASE (GAUSSIAN NAIVE BAYES)
 ================================================================
 Dataset File       : spambase.data (UCI Spambase Email Dataset)
-Total Instances    : 4,204  (Ham: 2,528, Spam: 1,676)
+Total Instances    : 4,204  (Not Spam: 2,528, Spam: 1,676)
 Training Samples   : 3,363
 Testing Samples    : 841
 Input Features     : 57 continuous features
@@ -27,25 +27,25 @@ COMPARISON AGAINST UNREGULARIZED RAW BASELINE (Raw Features, var_smoothing=1e-9)
 
 CONFUSION MATRIX BREAKDOWN
 ----------------------------------------------------------------
-                 Predicted Ham   Predicted Spam
-Actual Ham       417             89             
-Actual Spam      17              318            
+                 Predicted Not Spam   Predicted Spam
+Actual Not Spam  417                  89             
+Actual Spam      17                   318            
 
-True Negatives  (TN) = 417   : Legitimate emails correctly delivered to Inbox.
-False Positives (FP) = 89    : Legitimate emails incorrectly flagged as Spam.
+True Negatives  (TN) = 417   : Not spam emails correctly delivered to Inbox.
+False Positives (FP) = 89    : Not spam emails incorrectly flagged as Spam.
 False Negatives (FN) = 17    : Spam emails that slipped into Inbox.
 True Positives  (TP) = 318   : Spam emails successfully intercepted.
 
 CLASSIFICATION REPORT
 ----------------------------------------------------------------
-                precision    recall  f1-score   support
+              precision    recall  f1-score   support
 
-Ham (Non-Spam)       0.96      0.82      0.89       506
-          Spam       0.78      0.95      0.86       335
+    Not Spam       0.96      0.82      0.89       506
+        Spam       0.78      0.95      0.86       335
 
-      accuracy                           0.87       841
-     macro avg       0.87      0.89      0.87       841
-  weighted avg       0.89      0.87      0.88       841
+    accuracy                           0.87       841
+   macro avg       0.87      0.89      0.87       841
+weighted avg       0.89      0.87      0.88       841
 
 METHODOLOGICAL ANALYSIS & GAUSSIAN DISTRIBUTION FIT
 ----------------------------------------------------------------

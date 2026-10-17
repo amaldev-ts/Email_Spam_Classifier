@@ -9,7 +9,7 @@ Dataset Reference:
     Source: UCI Machine Learning Repository (https://archive.ics.uci.edu/dataset/94/spambase)
 
 Dataset Characteristics:
-    - 4,601 email instances (1,813 Spam [39.4%], 2,788 Ham / Non-Spam [60.6%])
+    - 4,601 email instances (1,813 Spam [39.4%], 2,788 Not Spam [60.6%])
     - 57 continuous numeric attributes + 1 binary nominal target:
         * 48 word-frequency percentages (word_freq_WORD, 0-100%)
         * 6 character-frequency percentages (char_freq_CHAR, 0-100%)
@@ -17,7 +17,7 @@ Dataset Characteristics:
             - capital_run_length_average (continuous float)
             - capital_run_length_longest (continuous integer)
             - capital_run_length_total (continuous integer)
-        * 1 class label (1 = spam, 0 = ham)
+        * 1 class label (1 = spam, 0 = not spam)
 
 Key Data Validation Principles:
     - Track and record any malformed/bad rows explicitly.
@@ -163,11 +163,11 @@ def load_dataset(path=None) -> Tuple[pd.DataFrame, Dict]:
 
     # 5. Class distribution statistics
     class_counts = df["label"].value_counts().to_dict()
-    n_ham = class_counts.get(0, 0)
+    n_not_spam = class_counts.get(0, 0)
     n_spam = class_counts.get(1, 0)
-    info["ham_count"] = n_ham
+    info["not_spam_count"] = n_not_spam
     info["spam_count"] = n_spam
-    info["ham_pct"] = (n_ham / len(df)) * 100 if len(df) > 0 else 0.0
+    info["not_spam_pct"] = (n_not_spam / len(df)) * 100 if len(df) > 0 else 0.0
     info["spam_pct"] = (n_spam / len(df)) * 100 if len(df) > 0 else 0.0
     info["num_features"] = len(feature_cols)
 

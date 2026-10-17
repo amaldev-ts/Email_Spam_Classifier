@@ -1,7 +1,7 @@
 """
 predict.py
 ----------
-Classify an email message or feature vector as SPAM or HAM
+Classify an email message or feature vector as SPAM or NOT SPAM
 using the trained Gaussian Naïve Bayes pipeline on UCI Spambase.
 
 Usage:
@@ -44,11 +44,11 @@ def predict_from_features(features: np.ndarray, pipeline) -> Dict:
 
     df_feats = pd.DataFrame(features, columns=FEATURE_NAMES)
     label_idx = int(predict_labels(pipeline, df_feats)[0])
-    p_ham, p_spam = predict_probabilities(pipeline, df_feats)[0]
+    p_not_spam, p_spam = predict_probabilities(pipeline, df_feats)[0]
 
     return {
-        "label": "SPAM" if label_idx == 1 else "HAM (Non-Spam)",
-        "p_ham": float(p_ham),
+        "label": "SPAM" if label_idx == 1 else "NOT SPAM",
+        "p_not_spam": float(p_not_spam),
         "p_spam": float(p_spam),
         "features": features[0],
     }
@@ -69,10 +69,10 @@ def predict_from_text(raw_text: str, pipeline) -> Dict:
 def print_result(result: Dict) -> None:
     """Display prediction outcome and probabilistic confidence."""
     label = result["label"]
-    p_ham = result["p_ham"]
+    p_not_spam = result["p_not_spam"]
     p_spam = result["p_spam"]
 
-    max_p = max(p_ham, p_spam)
+    max_p = max(p_not_spam, p_spam)
     if max_p >= 0.90:
         confidence = "High Confidence"
     elif max_p >= 0.70:
@@ -84,8 +84,8 @@ def print_result(result: Dict) -> None:
     print(f"  PREDICTED CLASS  : {label}")
     print(f"  Confidence Level : {confidence}")
     print("-" * 52)
-    print(f"  Ham Probability  : {format_probability(p_ham):<10} (p = {p_ham:.4f})")
-    print(f"  Spam Probability : {format_probability(p_spam):<10} (p = {p_spam:.4f})")
+    print(f"  Not Spam Probability : {format_probability(p_not_spam):<10} (p = {p_not_spam:.4f})")
+    print(f"  Spam Probability     : {format_probability(p_spam):<10} (p = {p_spam:.4f})")
     print("=" * 52)
 
     # Show indicative features if non-zero
@@ -125,7 +125,7 @@ def run_interactive():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Predict spam/ham using UCI Spambase GaussianNB.")
+    parser = argparse.ArgumentParser(description="Predict spam/not spam using UCI Spambase GaussianNB.")
     parser.add_argument("--text", help="Raw email text to classify")
     parser.add_argument("--features", help="Comma-separated 57 numeric values")
     args = parser.parse_args()

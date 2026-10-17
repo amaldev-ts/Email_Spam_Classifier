@@ -5,7 +5,7 @@ Evaluation metrics computation, plotting, error analysis, and report formatting
 for the UCI Spambase email classification system.
 
 Conventions:
-    Class 0: Ham (Legitimate Email) - Negative Class
+    Class 0: Not Spam (Legitimate Email) - Negative Class
     Class 1: Spam - Positive Class for Precision, Recall, and F1-score.
 """
 
@@ -29,7 +29,7 @@ from sklearn.metrics import (
 
 from data_loader import FEATURE_NAMES
 
-CLASS_NAMES = ["Ham (Non-Spam)", "Spam"]
+CLASS_NAMES = ["Not Spam", "Spam"]
 
 
 def compute_metrics(y_true, y_pred) -> Dict:
@@ -89,8 +89,8 @@ def extract_errors(
             rows.append({
                 "Sample_Index": i,
                 "Error_Type": err_type,
-                "Actual": "Ham" if actual == 0 else "Spam",
-                "Predicted": "Spam" if pred == 1 else "Ham",
+                "Actual": "Not Spam" if actual == 0 else "Spam",
+                "Predicted": "Spam" if pred == 1 else "Not Spam",
                 "Top_Indicative_Features": top_feat_str,
                 "capital_run_total": float(sample_feats.get("capital_run_length_total", 0.0)),
                 "char_freq_dollar": float(sample_feats.get("char_freq_$", 0.0)),
@@ -179,7 +179,7 @@ def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Optiona
         "EMAIL SPAM CLASSIFICATION - UCI SPAMBASE (GAUSSIAN NAIVE BAYES)",
         "=" * 64,
         f"Dataset File       : {run_info['file']} (UCI Spambase Email Dataset)",
-        f"Total Instances    : {run_info['total']:,}  (Ham: {run_info['ham']:,}, Spam: {run_info['spam']:,})",
+        f"Total Instances    : {run_info['total']:,}  (Not Spam: {run_info['not_spam']:,}, Spam: {run_info['spam']:,})",
         f"Training Samples   : {run_info['train_size']:,}",
         f"Testing Samples    : {run_info['test_size']:,}",
         f"Input Features     : {run_info['num_features']} continuous features",
@@ -225,12 +225,12 @@ def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Optiona
     lines.extend([
         "CONFUSION MATRIX BREAKDOWN",
         "----------------------------------------------------------------",
-        "                 Predicted Ham   Predicted Spam",
-        f"Actual Ham       {tn:<15d} {fp:<15d}",
-        f"Actual Spam      {fn:<15d} {tp:<15d}",
+        "                 Predicted Not Spam   Predicted Spam",
+        f"Actual Not Spam  {tn:<20d} {fp:<15d}",
+        f"Actual Spam      {fn:<20d} {tp:<15d}",
         "",
-        f"True Negatives  (TN) = {tn:<5d} : Legitimate emails correctly delivered to Inbox.",
-        f"False Positives (FP) = {fp:<5d} : Legitimate emails incorrectly flagged as Spam.",
+        f"True Negatives  (TN) = {tn:<5d} : Not spam emails correctly delivered to Inbox.",
+        f"False Positives (FP) = {fp:<5d} : Not spam emails incorrectly flagged as Spam.",
         f"False Negatives (FN) = {fn:<5d} : Spam emails that slipped into Inbox.",
         f"True Positives  (TP) = {tp:<5d} : Spam emails successfully intercepted.",
         "",
