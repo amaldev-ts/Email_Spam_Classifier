@@ -357,6 +357,18 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     final_metrics = compute_metrics(y_test, y_pred_final)
     baseline_metrics = compute_metrics(y_test, y_pred_baseline)
 
+    # Derive actual pipeline properties directly from the fitted object
+    classifier_step = final_pipeline.named_steps["classifier"]
+    selected_smoothing = float(getattr(classifier_step, "var_smoothing", 1e-9))
+    has_log = "log" in final_pipeline.named_steps
+    has_scaler = "scaler" in final_pipeline.named_steps
+    if has_log and has_scaler:
+        transform_label = "Log1p + StandardScaler"
+    elif has_log:
+        transform_label = "Log1p"
+    else:
+        transform_label = "None (Raw)"
+
     test_comp_df = pd.DataFrame([
         {
             "Model": "Baseline GaussianNB (Raw, vs=1e-9)",
@@ -372,8 +384,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
         },
         {
             "Model": f"Selected Model ({best_config['name']})",
-            "Transform": "Log1p" if "Log1p" in best_config["name"] else "None",
-            "var_smoothing": DEFAULT_VAR_SMOOTHING,
+            "Transform": transform_label,
+            "var_smoothing": selected_smoothing,
             "Accuracy": round(final_metrics["accuracy"], 4),
             "Precision": round(final_metrics["precision"], 4),
             "Recall": round(final_metrics["recall"], 4),
@@ -404,9 +416,11 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
         "spam": info["spam_count"],
         "train_size": len(X_train),
         "test_size": len(X_test),
-        "num_features": len(FEATURE_NAMES),
+        "num_features": len(feature_subset),
+        "feature_subset": best_config["features"],
         "seed": seed,
-        "var_smoothing": DEFAULT_VAR_SMOOTHING,
+        "var_smoothing": selected_smoothing,
+        "transform": f"{transform_label} Transformation" if transform_label != "None (Raw)" else "None (Raw Features)",
         "selected_model": best_config["name"],
         "cv_f1_mean": best_config["cv_f1_mean"],
     }

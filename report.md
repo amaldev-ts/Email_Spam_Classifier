@@ -264,18 +264,18 @@ The cross-validation results (`outputs/cv_experiments.csv`) across all 12 contro
 
 | # | Experiment Configuration | Category | `var_smoothing` | CV Accuracy (Mean ± Std) | CV Precision (Mean ± Std) | CV Recall (Mean ± Std) | CV F1-Score (Mean ± Std) | Description |
 | :-: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **1** | Baseline (Raw, vs=1e-9) | Baseline | $1.0 \times 10^{-9}$ | $0.8207 \pm 0.0125$ | $0.7012 \pm 0.0148$ | $0.9503 \pm 0.0081$ | $0.8069 \pm 0.0105$ | Unregularized default on raw features |
-| **2** | Raw vs=1e-5 | Raw Variance | $1.0 \times 10^{-5}$ | $0.6962 \pm 0.0096$ | $0.8259 \pm 0.0312$ | $0.2924 \pm 0.0205$ | $0.4299 \pm 0.0245$ | Variance disparity causes signal loss |
-| **3** | Raw vs=1e-2 | Raw Variance | $1.0 \times 10^{-2}$ | $0.6571 \pm 0.0125$ | $0.7959 \pm 0.0680$ | $0.1766 \pm 0.0211$ | $0.2881 \pm 0.0314$ | Excessive variance added to word freqs |
-| **4** | Raw vs=0.05 | Raw Variance | $5.0 \times 10^{-2}$ | $0.6505 \pm 0.0098$ | $0.7811 \pm 0.0642$ | $0.1593 \pm 0.0165$ | $0.2636 \pm 0.0239$ | Severe recall degradation on raw scale |
-| **5** | Log1p vs=1e-9 | Log1p Transform | $1.0 \times 10^{-9}$ | $0.8255 \pm 0.0102$ | $0.7090 \pm 0.0115$ | $0.9455 \pm 0.0142$ | $0.8103 \pm 0.0110$ | Log1p with unregularized variance |
-| **6** | Log1p vs=1e-4 | Log1p Transform | $1.0 \times 10^{-4}$ | $0.8367 \pm 0.0098$ | $0.7224 \pm 0.0120$ | $0.9510 \pm 0.0095$ | $0.8211 \pm 0.0099$ | Log1p with light regularization |
-| **7** | Log1p vs=1e-3 | Log1p Transform | $1.0 \times 10^{-3}$ | $0.8421 \pm 0.0115$ | $0.7263 \pm 0.0135$ | $0.9621 \pm 0.0072$ | $0.8277 \pm 0.0112$ | Improved log-variance stability |
-| **8** | Log1p vs=1e-2 | Log1p Transform | $1.0 \times 10^{-2}$ | $0.8658 \pm 0.0155$ | $0.7613 \pm 0.0215$ | $0.9607 \pm 0.0065$ | $0.8494 \pm 0.0150$ | Steady precision gains |
+| **1** | Baseline (Raw, vs=1e-9) | Baseline | $1.0 \times 10^{-9}$ | $0.8207 \pm 0.0124$ | $0.7012 \pm 0.0152$ | $0.9503 \pm 0.0112$ | $0.8069 \pm 0.0119$ | Unregularized default on raw features |
+| **2** | Raw vs=1e-5 | Raw Variance | $1.0 \times 10^{-5}$ | $0.6962 \pm 0.0105$ | $0.8259 \pm 0.0414$ | $0.2924 \pm 0.0380$ | $0.4299 \pm 0.0373$ | Variance disparity causes signal loss |
+| **3** | Raw vs=1e-2 | Raw Variance | $1.0 \times 10^{-2}$ | $0.6571 \pm 0.0065$ | $0.7959 \pm 0.0561$ | $0.1766 \pm 0.0193$ | $0.2881 \pm 0.0241$ | Excessive variance added to word freqs |
+| **4** | Raw vs=0.05 | Raw Variance | $5.0 \times 10^{-2}$ | $0.6505 \pm 0.0061$ | $0.7811 \pm 0.0556$ | $0.1593 \pm 0.0204$ | $0.2636 \pm 0.0264$ | Severe recall degradation on raw scale |
+| **5** | Log1p vs=1e-9 | Log1p Transform | $1.0 \times 10^{-9}$ | $0.8255 \pm 0.0116$ | $0.7090 \pm 0.0124$ | $0.9455 \pm 0.0130$ | $0.8103 \pm 0.0121$ | Log1p with unregularized variance |
+| **6** | Log1p vs=1e-4 | Log1p Transform | $1.0 \times 10^{-4}$ | $0.8367 \pm 0.0101$ | $0.7224 \pm 0.0112$ | $0.9510 \pm 0.0130$ | $0.8211 \pm 0.0108$ | Log1p with light regularization |
+| **7** | Log1p vs=1e-3 | Log1p Transform | $1.0 \times 10^{-3}$ | $0.8421 \pm 0.0081$ | $0.7263 \pm 0.0106$ | $0.9621 \pm 0.0072$ | $0.8277 \pm 0.0079$ | Improved log-variance stability |
+| **8** | Log1p vs=1e-2 | Log1p Transform | $1.0 \times 10^{-2}$ | $0.8658 \pm 0.0092$ | $0.7613 \pm 0.0118$ | $0.9607 \pm 0.0080$ | $0.8494 \pm 0.0095$ | Steady precision gains |
 | **9** | **Log1p vs=0.05 (Selected)** | **Log1p Transform** | **$5.0 \times 10^{-2}$** | **$0.8788 \pm 0.0133$** | **$0.7914 \pm 0.0216$** | **$0.9414 \pm 0.0113$** | **$0.8597 \pm 0.0141$** | **Optimal F1 & precision balance** |
-| **10** | Log1p vs=0.10 | Log1p Transform | $1.0 \times 10^{-1}$ | $0.8707 \pm 0.0162$ | $0.7878 \pm 0.0225$ | $0.9207 \pm 0.0135$ | $0.8488 \pm 0.0180$ | Higher precision at expense of recall |
-| **11** | Log1p + StandardScaler | Scaling | $1.0 \times 10^{-2}$ | $0.8318 \pm 0.0108$ | $0.7162 \pm 0.0122$ | $0.9497 \pm 0.0115$ | $0.8165 \pm 0.0110$ | Unit-variance scaling |
-| **12** | Word Features Only (48) | Feature Subset | $5.0 \times 10^{-2}$ | $0.8076 \pm 0.0122$ | $0.6804 \pm 0.0140$ | $0.9655 \pm 0.0075$ | $0.7982 \pm 0.0115$ | Excluding punctuation & capital stats |
+| **10** | Log1p vs=0.10 | Log1p Transform | $1.0 \times 10^{-1}$ | $0.8707 \pm 0.0112$ | $0.7878 \pm 0.0207$ | $0.9207 \pm 0.0095$ | $0.8488 \pm 0.0111$ | Higher precision at expense of recall |
+| **11** | Log1p + StandardScaler | Scaling | $1.0 \times 10^{-2}$ | $0.8318 \pm 0.0120$ | $0.7162 \pm 0.0136$ | $0.9497 \pm 0.0135$ | $0.8165 \pm 0.0125$ | Unit-variance scaling |
+| **12** | Word Features Only (48) | Feature Subset | $5.0 \times 10^{-2}$ | $0.8076 \pm 0.0082$ | $0.6804 \pm 0.0092$ | $0.9655 \pm 0.0062$ | $0.7982 \pm 0.0075$ | Excluding punctuation & capital stats |
 
 ### Key Experimental Findings & Programmatic Selection:
 1. **Programmatic Selection:** The training script automatically evaluates `df_cv["CV_F1_Mean"].idxmax()`, selecting Configuration #9 (`Log1p` + `var_smoothing = 0.05`) dynamically without hardcoding.
@@ -362,13 +362,15 @@ The evaluation demonstrates a classic machine learning trade-off:
   - A user missing a client proposal, flight confirmation, invoice, or interview invitation incurs immediate financial, legal, or professional harm.
   - In contrast, a spam email slipping into the inbox (False Negative) is merely a minor inconvenience that can be deleted manually.
 - The improved model cut False Positives by **32.35%** (from 136 down to 92) while maintaining an outstanding **93.94% Spam Recall**.
+- **Practical Precision Limitation:** Despite significant improvement over baseline (71.78% to 78.75%), an empirical precision of 78.75% indicates that approximately **1 out of every 5 emails (21.25%) flagged as spam is actually a legitimate Not Spam email** (92 false positives out of 433 total predicted spams on the test set). In production enterprise environments, automatically quarantining or dropping messages at this error rate would disrupt legitimate communications. A viable production strategy requires either tuning the decision threshold higher (e.g., $\tau \ge 0.85$ or routing borderline emails into a "Junk" folder rather than dropping them) or combining GaussianNB predictions in a stacked ensemble with rule-based allowlists and SPF/DKIM verification.
 - **Threshold Policy:** In production systems, classification thresholds $\tau = P(\text{Spam} \mid \mathbf{x})$ can be adjusted away from 0.5 (e.g., $\tau = 0.85$) to further eliminate False Positives, allowing organizations to tailor the trade-off to their specific risk tolerance.
 
 ### 9.3 Critique of Gaussian Normality on Email Attributes
-Gaussian Naïve Bayes assumes that each feature follows a symmetric, bell-shaped normal distribution. In Spambase:
-- 48 word frequencies and 6 character frequencies are bounded in $[0, 100]$ and heavily zero-inflated (often $>85\%$ zeros).
-- Capital run-lengths are strictly positive integers with extreme right-skew.
-- The `Log1p` transformation compresses positive skewness and contracts long tails, enabling GaussianNB to achieve **87.62% test accuracy** and an **F1-score of 85.68%**.
+Gaussian Naïve Bayes makes the fundamental assumption that each continuous feature conditionally follows a normal (Gaussian) distribution within each class: $x_i \mid C \sim \mathcal{N}(\mu_{C,i}, \sigma_{C,i}^2)$. However, an inspection of email text and Spambase attributes demonstrates that this assumption is substantially violated:
+- **Zero-Inflation & Non-Negative Boundedness:** 48 word frequencies and 6 character frequencies are bounded in $[0, 100]$ and heavily zero-inflated (frequently $>85\%$ zeros, as specific terms only appear in a fraction of emails). A continuous Gaussian density assigns non-zero probability mass to negative numbers ($x_i < 0$), which is impossible for word or character percentages.
+- **Extreme Right Skewness:** Capital run-length statistics (`run_length_total`, `run_length_longest`) are strictly positive integers with heavy-tailed, power-law-like distributions spanning several orders of magnitude.
+- **Role of the Log1p Transformation:** Applying $\ln(1 + x)$ does **not** convert zero-inflated count data into a true bell-shaped Gaussian distribution—the discrete probability mass at zero ($\ln(1+0) = 0$) remains unchanged. Instead, Log1p serves as an **empirical variance-stabilizing and range-compression transformation**. By compressing the multi-order-of-magnitude dynamic range down to a compact domain ($[0, \approx 5]$), Log1p dampens extreme outlier leverage and equalizes variance scales across all 57 features. This allows Scikit-learn's global `var_smoothing` parameter to regularize all features harmoniously without being overwhelmed by total capital runs.
+- **Theoretical Model Fit:** Although Log1p enables GaussianNB to achieve competitive results (**87.62% test accuracy** and **85.68% F1-score**), count-based models (such as Multinomial Naïve Bayes on raw counts) or non-parametric algorithms (such as Tree ensembles) align more naturally with zero-inflated email text characteristics.
 
 ### 9.4 Historical Context of the HP Labs Spambase
 Spambase was compiled from HP Labs in 1999. Key considerations for modern systems:
@@ -383,7 +385,7 @@ Spambase was compiled from HP Labs in 1999. Key considerations for modern system
 1. **Full Assignment Compliance:** Implemented an end-to-end spam classifier strictly using `sklearn.naive_bayes.GaussianNB` on the authentic UCI Spambase email dataset.
 2. **Programmatic Model Selection:** Bound the final model selection directly to 5-fold cross-validation results, eliminating hardcoded assumptions.
 3. **Data Cleaning Investigation:** Audited duplicate feature vectors and conflicting labels, justifying the retention of the canonical 4,601 benchmark and providing empirical comparative results (`dataset_cleaning_comparison.csv`).
-4. **Distribution Alignment:** Demonstrated mathematically and empirically that Log1p transformation stabilizes feature variances and satisfies Gaussian distribution requirements, boosting CV F1-score from **80.69% to 85.97%**.
+4. **Variance Stabilization:** Demonstrated mathematically and empirically that the Log1p transformation compresses extreme skewness and aligns feature variance scales, enabling effective variance smoothing for GaussianNB and boosting CV F1-score from **80.69% to 85.97%**.
 5. **Accurate Feature Extraction Scope:** Formally qualified the approximate nature of the raw-text feature proxy while providing verified sample vectors (`--sample-spam`, `--sample-not-spam`) for benchmark inference.
 6. **Automated Testing Suite:** Implemented a full test suite of 24 unit and integration tests passing with 100% success rate on `pytest`.
 

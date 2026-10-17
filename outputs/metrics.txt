@@ -5,8 +5,9 @@ Total Instances    : 4,601  (Not Spam: 2,788, Spam: 1,813)
 Training Samples   : 3,680
 Testing Samples    : 921
 Input Features     : 57 continuous features
-Feature Transform  : Log1p Transformation (log(1 + x))
+Feature Transform  : Log1p Transformation
 Variance Smoothing : 0.05
+Selected Recipe    : 9. Log1p vs=0.05 (Selected)
 Random Seed        : 42
 
 HELD-OUT TEST SET EVALUATION (Spam = Positive Class)

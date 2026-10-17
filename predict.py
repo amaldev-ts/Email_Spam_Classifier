@@ -54,16 +54,23 @@ def format_probability(p: float) -> str:
 
 
 def predict_from_features(features: np.ndarray, pipeline, source_description: str = "57-Feature Benchmark Vector") -> Dict:
-    """Run prediction on a 57-dimensional feature vector."""
+    """Run prediction on a 57-dimensional (or pipeline-matched) feature vector."""
     if features.ndim == 1:
         features = features.reshape(1, -1)
 
-    if features.shape[1] != len(FEATURE_NAMES):
+    expected_n = getattr(pipeline, "n_features_in_", len(FEATURE_NAMES))
+    if features.shape[1] == len(FEATURE_NAMES) and expected_n == 48:
+        input_feats = features[:, :48]
+        cols = FEATURE_NAMES[:48]
+    elif features.shape[1] == expected_n:
+        input_feats = features
+        cols = FEATURE_NAMES[:expected_n]
+    else:
         raise ValueError(
-            f"Expected {len(FEATURE_NAMES)} features, received {features.shape[1]}."
+            f"Expected {expected_n} features (or {len(FEATURE_NAMES)} full Spambase features), received {features.shape[1]}."
         )
 
-    df_feats = pd.DataFrame(features, columns=FEATURE_NAMES)
+    df_feats = pd.DataFrame(input_feats, columns=cols)
     label_idx = int(predict_labels(pipeline, df_feats)[0])
     p_not_spam, p_spam = predict_probabilities(pipeline, df_feats)[0]
 
