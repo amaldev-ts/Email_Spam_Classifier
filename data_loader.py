@@ -83,10 +83,16 @@ def find_dataset_file(data_dir: Path = DATA_DIR) -> Path:
     )
 
 
-def load_dataset(path=None) -> Tuple[pd.DataFrame, Dict]:
+def load_dataset(path=None, clean_duplicates: bool = False) -> Tuple[pd.DataFrame, Dict]:
     """
-    Load, audit, and clean the UCI Spambase dataset.
+    Load, audit, and validate the UCI Spambase dataset.
     
+    Parameters:
+        path (Path or str, optional): Path to the spambase dataset file.
+        clean_duplicates (bool): If False (default), retains the canonical 4,601
+            benchmark instances as published in the UCI Machine Learning Repository.
+            If True, removes exact duplicate rows and conflicting-label feature groups.
+
     Returns:
         df   : pd.DataFrame with 57 feature columns and 1 'label' column
         info : dict containing detailed auditing statistics
@@ -123,6 +129,7 @@ def load_dataset(path=None) -> Tuple[pd.DataFrame, Dict]:
         "physical_lines": total_physical_lines,
         "rows_read": len(df),
         "bad_lines_skipped": len(bad_lines),
+        "clean_duplicates_applied": clean_duplicates,
     }
 
     if df.empty:
@@ -139,24 +146,42 @@ def load_dataset(path=None) -> Tuple[pd.DataFrame, Dict]:
     info["invalid_labels_removed"] = int(invalid_labels.sum())
     df = df[~invalid_labels]
 
-    # 3. Check for identical feature vectors with conflicting labels
+    # 3. Audit feature duplicates and conflicting labels
     feature_cols = FEATURE_NAMES
+    exact_duplicates_count = int(df.duplicated().sum())
+    feature_duplicates_count = int(df.duplicated(subset=feature_cols, keep=False).sum())
+
     grouped_labels = df.groupby(feature_cols)["label"].nunique()
     conflicting_keys = grouped_labels[grouped_labels > 1].index
-    info["conflicting_groups_detected"] = len(conflicting_keys)
+    conflicting_groups_count = len(conflicting_keys)
 
-    if len(conflicting_keys) > 0:
+    if conflicting_groups_count > 0:
         conflict_set = set(conflicting_keys)
-        mask = df[feature_cols].apply(tuple, axis=1).isin(conflict_set)
-        info["conflicting_rows_removed"] = int(mask.sum())
-        df = df[~mask]
+        conflict_mask = df[feature_cols].apply(tuple, axis=1).isin(conflict_set)
+        conflicting_rows_count = int(conflict_mask.sum())
+    else:
+        conflict_mask = pd.Series(False, index=df.index)
+        conflicting_rows_count = 0
+
+    info["exact_duplicates_count"] = exact_duplicates_count
+    info["feature_duplicates_count"] = feature_duplicates_count
+    info["conflicting_groups_detected"] = conflicting_groups_count
+    info["conflicting_rows_detected"] = conflicting_rows_count
+
+    # 4. Apply deduplication only if requested
+    if clean_duplicates:
+        if conflicting_groups_count > 0:
+            df = df[~conflict_mask]
+            info["conflicting_rows_removed"] = conflicting_rows_count
+        else:
+            info["conflicting_rows_removed"] = 0
+
+        before_dedup = len(df)
+        df = df.drop_duplicates()
+        info["duplicates_removed"] = before_dedup - len(df)
     else:
         info["conflicting_rows_removed"] = 0
-
-    # 4. Remove exact duplicate rows
-    before = len(df)
-    df = df.drop_duplicates()
-    info["duplicates_removed"] = before - len(df)
+        info["duplicates_removed"] = 0
 
     df = df.reset_index(drop=True)
     info["rows_final"] = len(df)

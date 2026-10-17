@@ -1,9 +1,9 @@
 EMAIL SPAM CLASSIFICATION - UCI SPAMBASE (GAUSSIAN NAIVE BAYES)
 ================================================================
 Dataset File       : spambase.data (UCI Spambase Email Dataset)
-Total Instances    : 4,204  (Not Spam: 2,528, Spam: 1,676)
-Training Samples   : 3,363
-Testing Samples    : 841
+Total Instances    : 4,601  (Not Spam: 2,788, Spam: 1,813)
+Training Samples   : 3,680
+Testing Samples    : 921
 Input Features     : 57 continuous features
 Feature Transform  : Log1p Transformation (log(1 + x))
 Variance Smoothing : 0.05
@@ -11,41 +11,41 @@ Random Seed        : 42
 
 HELD-OUT TEST SET EVALUATION (Spam = Positive Class)
 ----------------------------------------------------------------
-Accuracy            : 0.8740 (87.40%)
-Spam Precision      : 0.7813 (78.13%)
-Spam Recall         : 0.9493 (94.93%)
-Spam F1-score       : 0.8571 (85.71%)
-False Positive Rate : 0.1759 (17.59%)
+Accuracy            : 0.8762 (87.62%)
+Spam Precision      : 0.7875 (78.75%)
+Spam Recall         : 0.9394 (93.94%)
+Spam F1-score       : 0.8568 (85.68%)
+False Positive Rate : 0.1649 (16.49%)
 
 COMPARISON AGAINST UNREGULARIZED RAW BASELINE (Raw Features, var_smoothing=1e-9):
-  Accuracy    : 82.52%  ->  87.40%  (+4.88%)
-  Precision   : 70.35%  ->  78.13%  (+7.79%)
-  Recall      : 97.01%  ->  94.93%  (-2.09%)
-  F1-Score    : 81.56%  ->  85.71%  (+4.16%)
-  FP Rate     : 27.08%  ->  17.59%  (-9.49%)
-  False Positives: 137 in baseline vs 89 in improved model.
+  Accuracy    : 83.39%  ->  87.62%  (+4.23%)
+  Precision   : 71.78%  ->  78.75%  (+6.97%)
+  Recall      : 95.32%  ->  93.94%  (-1.38%)
+  F1-Score    : 81.89%  ->  85.68%  (+3.78%)
+  FP Rate     : 24.37%  ->  16.49%  (-7.89%)
+  False Positives: 136 in baseline vs 92 in improved model.
 
 CONFUSION MATRIX BREAKDOWN
 ----------------------------------------------------------------
                  Predicted Not Spam   Predicted Spam
-Actual Not Spam  417                  89             
-Actual Spam      17                   318            
+Actual Not Spam  466                  92             
+Actual Spam      22                   341            
 
-True Negatives  (TN) = 417   : Not spam emails correctly delivered to Inbox.
-False Positives (FP) = 89    : Not spam emails incorrectly flagged as Spam.
-False Negatives (FN) = 17    : Spam emails that slipped into Inbox.
-True Positives  (TP) = 318   : Spam emails successfully intercepted.
+True Negatives  (TN) = 466   : Not spam emails correctly delivered to Inbox.
+False Positives (FP) = 92    : Not spam emails incorrectly flagged as Spam.
+False Negatives (FN) = 22    : Spam emails that slipped into Inbox.
+True Positives  (TP) = 341   : Spam emails successfully intercepted.
 
 CLASSIFICATION REPORT
 ----------------------------------------------------------------
               precision    recall  f1-score   support
 
-    Not Spam       0.96      0.82      0.89       506
-        Spam       0.78      0.95      0.86       335
+    Not Spam       0.95      0.84      0.89       558
+        Spam       0.79      0.94      0.86       363
 
-    accuracy                           0.87       841
-   macro avg       0.87      0.89      0.87       841
-weighted avg       0.89      0.87      0.88       841
+    accuracy                           0.88       921
+   macro avg       0.87      0.89      0.87       921
+weighted avg       0.89      0.88      0.88       921
 
 METHODOLOGICAL ANALYSIS & GAUSSIAN DISTRIBUTION FIT
 ----------------------------------------------------------------

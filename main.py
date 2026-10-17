@@ -27,6 +27,7 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+from sklearn.base import clone
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
@@ -207,25 +208,107 @@ def run_cross_validation_experiments(
     df_cv = pd.DataFrame(results)
     csv_path = output_dir / "cv_experiments.csv"
     df_cv.to_csv(csv_path, index=False)
-    return df_cv
+
+    # Programmatically select the best model configuration based on highest mean CV F1
+    best_idx = int(df_cv["CV_F1_Mean"].idxmax())
+    best_config = {
+        "id": experiment_definitions[best_idx]["id"],
+        "name": experiment_definitions[best_idx]["name"],
+        "category": experiment_definitions[best_idx]["category"],
+        "pipeline": experiment_definitions[best_idx]["pipeline"],
+        "features": experiment_definitions[best_idx]["features"],
+        "description": experiment_definitions[best_idx]["description"],
+        "cv_f1_mean": float(df_cv.loc[best_idx, "CV_F1_Mean"]),
+        "cv_f1_std": float(df_cv.loc[best_idx, "CV_F1_Std"]),
+        "cv_accuracy_mean": float(df_cv.loc[best_idx, "CV_Accuracy_Mean"]),
+        "cv_precision_mean": float(df_cv.loc[best_idx, "CV_Precision_Mean"]),
+        "cv_recall_mean": float(df_cv.loc[best_idx, "CV_Recall_Mean"]),
+    }
+
+    return df_cv, best_config
+
+
+def compare_dataset_cleaning_policies(
+    data_path=None, output_dir: Path = OUTPUT_DIR, seed: int = RANDOM_SEED
+) -> pd.DataFrame:
+    """
+    Empirically compare the canonical 4,601 benchmark dataset against the
+    deduplicated 4,204 subset using the selected model pipeline and 5-fold CV.
+    """
+    records = []
+    policies = [
+        ("Canonical Benchmark (Full)", False),
+        ("Deduplicated Subset (397 removed)", True),
+    ]
+
+    for name, clean_dupes in policies:
+        df, info = load_dataset(data_path, clean_duplicates=clean_dupes)
+        X = df[FEATURE_NAMES]
+        y = df["label"]
+
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=TEST_SIZE, random_state=seed, stratify=y
+        )
+
+        pipe = Pipeline([
+            ("log", make_log1p_transformer()),
+            ("classifier", GaussianNB(var_smoothing=0.05)),
+        ])
+
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+        scores = cross_validate(
+            pipe,
+            X_train,
+            y_train,
+            cv=cv,
+            scoring=["accuracy", "precision", "recall", "f1"],
+            n_jobs=-1,
+        )
+
+        pipe.fit(X_train, y_train)
+        y_pred = pipe.predict(X_test)
+        metrics = compute_metrics(y_test, y_pred)
+
+        records.append({
+            "Dataset_Policy": name,
+            "Clean_Duplicates": clean_dupes,
+            "Total_Rows": len(df),
+            "Train_Rows": len(X_train),
+            "Test_Rows": len(X_test),
+            "CV_F1_Mean": round(float(scores["test_f1"].mean()), 4),
+            "CV_F1_Std": round(float(scores["test_f1"].std()), 4),
+            "Test_Accuracy": round(metrics["accuracy"], 4),
+            "Test_Precision": round(metrics["precision"], 4),
+            "Test_Recall": round(metrics["recall"], 4),
+            "Test_F1": round(metrics["f1"], 4),
+            "Test_FPR": round(metrics["false_positive_rate"], 4),
+            "False_Positives": metrics["fp"],
+            "False_Negatives": metrics["fn"],
+        })
+
+    df_comp = pd.DataFrame(records)
+    csv_path = output_dir / "dataset_cleaning_comparison.csv"
+    df_comp.to_csv(csv_path, index=False)
+    return df_comp
 
 
 def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int = RANDOM_SEED) -> None:
     """Full leak-free execution: validate -> split -> CV search -> fit -> test -> save."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 1. Dataset Loading, Auditing, and Validation
+    # 1. Dataset Loading, Auditing, and Validation (Default to canonical 4,601 benchmark)
     print("[1/7] Loading and auditing UCI Spambase dataset...")
-    df, info = load_dataset(data_path)
+    df, info = load_dataset(data_path, clean_duplicates=False)
     print(f"      Source file          : {info['file']}")
     print(f"      Physical file lines  : {info['physical_lines']:,}")
     print(f"      Rows parsed          : {info['rows_read']:,}")
     print(f"      Malformed lines      : {info['bad_lines_skipped']}")
     print(f"      Missing rows removed : {info['missing_removed']}")
     print(f"      Invalid label rows   : {info['invalid_labels_removed']}")
-    print(f"      Conflicting groups   : {info['conflicting_groups_detected']} detected ({info['conflicting_rows_removed']} rows removed)")
-    print(f"      Duplicates removed   : {info['duplicates_removed']:,}")
-    print(f"      Cleaned dataset      : {info['rows_final']:,} email instances")
+    print(f"      Exact duplicates     : {info['exact_duplicates_count']:,} rows audited (retained in canonical benchmark)")
+    print(f"      Duplicate features   : {info['feature_duplicates_count']:,} rows sharing identical feature vectors")
+    print(f"      Conflicting groups   : {info['conflicting_groups_detected']} detected ({info['conflicting_rows_detected']} rows with conflicting labels audited)")
+    print(f"      Active dataset       : {info['rows_final']:,} email instances (Canonical Benchmark)")
     print(f"      Class distribution   : Not Spam = {info['not_spam_count']:,} ({info['not_spam_pct']:.2f}%), Spam = {info['spam_count']:,} ({info['spam_pct']:.2f}%)")
 
     plot_class_distribution(df["label"], OUTPUT_DIR / "class_distribution.png")
@@ -248,19 +331,27 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
 
     # 3. Stratified 5-Fold Cross-Validation on Training Data Only
     print("[3/7] Running 5-Fold Stratified Cross-Validation on training data across GaussianNB configurations...")
-    df_cv = run_cross_validation_experiments(X_train, y_train, OUTPUT_DIR)
+    df_cv, best_config = run_cross_validation_experiments(X_train, y_train, OUTPUT_DIR)
     print("      Saved CV results to: outputs/cv_experiments.csv")
 
-    # 4. Fit Final Selected GaussianNB Model on Full Training Set
-    print(f"[4/7] Fitting selected GaussianNB model on full training set (Log1p + var_smoothing={DEFAULT_VAR_SMOOTHING})...")
-    final_pipeline = train_model(X_train, y_train, use_log=True, var_smoothing=DEFAULT_VAR_SMOOTHING)
+    # 4. Programmatic Model Selection & Fitting on Full Training Set
+    print(f"[4/7] Selecting best model configuration from 5-fold CV results...")
+    print(f"      Selected Recipe      : Experiment #{best_config['id']} '{best_config['name']}'")
+    print(f"      Selection Criterion  : Highest Mean CV Spam F1-score = {best_config['cv_f1_mean']:.4f} (+/- {best_config['cv_f1_std']:.4f})")
+    print(f"      Description          : {best_config['description']}")
+    print("      Fitting winning pipeline architecture on complete training partition...")
+
+    final_pipeline = clone(best_config["pipeline"])
+    feature_subset = FEATURE_NAMES[:48] if best_config["features"] == "words_only" else FEATURE_NAMES
+    final_pipeline.fit(X_train[feature_subset], y_train)
 
     # Also fit raw baseline model for direct before/after contrast
-    baseline_pipeline = train_model(X_train, y_train, use_log=False, var_smoothing=1e-9)
+    baseline_pipeline = Pipeline([("classifier", GaussianNB(var_smoothing=1e-9))])
+    baseline_pipeline.fit(X_train, y_train)
 
     # 5. Held-Out Test Set Evaluation
-    print("[5/7] Evaluating final model and baseline on held-out test set...")
-    y_pred_final = final_pipeline.predict(X_test)
+    print("[5/7] Evaluating selected model and baseline on held-out test set...")
+    y_pred_final = final_pipeline.predict(X_test[feature_subset])
     y_pred_baseline = baseline_pipeline.predict(X_test)
 
     final_metrics = compute_metrics(y_test, y_pred_final)
@@ -280,8 +371,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
             "FN_Count": baseline_metrics["fn"],
         },
         {
-            "Model": "Final Improved GaussianNB (Log1p + vs=0.05)",
-            "Transform": "Log1p",
+            "Model": f"Selected Model ({best_config['name']})",
+            "Transform": "Log1p" if "Log1p" in best_config["name"] else "None",
             "var_smoothing": DEFAULT_VAR_SMOOTHING,
             "Accuracy": round(final_metrics["accuracy"], 4),
             "Precision": round(final_metrics["precision"], 4),
@@ -302,8 +393,10 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     n_fn = (df_errors["Error_Type"] == "False Negative").sum()
     print(f"      Total test errors: {len(df_errors)}  (False Positives: {n_fp}, False Negatives: {n_fn})")
 
-    # 7. Persistence and Reports
-    print("[7/7] Persisting artifacts and reports...")
+    # 7. Persistence, Dataset Cleaning Audit & Reports
+    print("[7/7] Persisting artifacts, running dataset cleaning audit, and saving reports...")
+    df_clean_comp = compare_dataset_cleaning_policies(data_path, OUTPUT_DIR, seed=seed)
+
     run_info = {
         "file": info["file"],
         "total": len(df),
@@ -314,6 +407,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
         "num_features": len(FEATURE_NAMES),
         "seed": seed,
         "var_smoothing": DEFAULT_VAR_SMOOTHING,
+        "selected_model": best_config["name"],
+        "cv_f1_mean": best_config["cv_f1_mean"],
     }
     metrics_text = format_metrics_text(final_metrics, run_info, baseline_metrics=baseline_metrics)
     save_metrics_text(metrics_text, OUTPUT_DIR / "metrics.txt")
@@ -332,6 +427,11 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     print("HELD-OUT TEST SET BEFORE/AFTER COMPARISON")
     print("=" * 80)
     print(test_comp_df.to_string(index=False))
+
+    print("\n" + "=" * 80)
+    print("DATASET CLEANING POLICY COMPARISON (Canonical 4,601 vs Deduplicated 4,204)")
+    print("=" * 80)
+    print(df_clean_comp[["Dataset_Policy", "Total_Rows", "CV_F1_Mean", "Test_Accuracy", "Test_Precision", "Test_Recall", "Test_F1", "False_Positives", "False_Negatives"]].to_string(index=False))
 
     print("\n" + "=" * 80)
     print("SAMPLE TEST ERRORS (From outputs/error_analysis.csv)")

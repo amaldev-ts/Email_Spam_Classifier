@@ -1,13 +1,18 @@
 """
 preprocessing.py
 ----------------
-Feature definition, distributional transformation, and raw-email feature extraction
-for the UCI Spambase email classification system.
+Feature definition, distributional transformation, and approximate raw-email
+feature extraction for the UCI Spambase email classification system.
 
 This module provides:
-  1. The official 57-feature schema definitions from UCI Spambase.
-  2. An interactive `extract_spambase_features()` engine that converts any raw email
-     text into the exact 57 Spambase features (satisfies Requirement #2 of CST413).
+  1. The official 57-feature schema definitions from UCI Spambase (48 word frequencies,
+     6 character frequencies, and 3 capital letter run-length attributes).
+  2. An approximate heuristic proxy feature extractor `extract_spambase_features()`
+     implementing the schema specifications for interactive testing and demonstration.
+     Note: Spambase provides precomputed features, not raw email texts. The original
+     1999 HP Labs feature extraction pipeline used proprietary MIME/header parsers
+     that cannot be verified against the dataset without original raw bodies.
+     Therefore, rigorous benchmark results apply strictly to validated 57-feature vectors.
   3. Distributional transforms (Log1p transformation) to mitigate severe right-skewness
      and align continuous features closer to Gaussian normality.
 """
@@ -31,7 +36,15 @@ def clean_text(text: str) -> str:
 
 def extract_spambase_features(text: str) -> np.ndarray:
     """
-    Extract the 57 UCI Spambase continuous features from raw email text.
+    Approximate heuristic feature extractor: extracts 57 Spambase features
+    from raw email text based on the documented UCI Spambase schema.
+
+    Methodological Note:
+      This function provides an illustrative proxy for interactive prediction.
+      Because the official Spambase benchmark supplies engineered numeric features
+      rather than original MIME/raw emails, this extraction process is an
+      approximation of the 1999 HP Labs feature generator. Benchmark test
+      results apply to the validated 57 continuous feature vectors.
 
     Feature Definitions (UCI Spambase Specification):
       - 48 word frequencies: 100 * (count of WORD / total words in email).
