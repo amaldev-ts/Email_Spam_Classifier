@@ -1,13 +1,13 @@
-Experiment,Category,var_smoothing,CV_Accuracy_Mean,CV_Accuracy_Std,CV_Precision_Mean,CV_Precision_Std,CV_Recall_Mean,CV_Recall_Std,CV_F1_Mean,CV_F1_Std,Description
-1. Baseline (vs=1e-9),Baseline,1e-09,0.844,0.0064,0.4392,0.0113,0.9125,0.0162,0.593,0.0136,Unregularized default GaussianNB
-2. Smoothing vs=1e-5,Variance Smoothing,1e-05,0.844,0.0064,0.4392,0.0113,0.9125,0.0162,0.593,0.0136,Minimal smoothing
-3. Smoothing vs=1e-2,Variance Smoothing,0.01,0.931,0.026,0.6652,0.0893,0.9455,0.019,0.7782,0.0676,Moderate smoothing
-4. Smoothing vs=0.05,Variance Smoothing,0.05,0.9835,0.0056,0.9552,0.0221,0.9105,0.0291,0.9322,0.0231,Balanced regularization (optimal)
-5. Smoothing vs=0.08,Variance Smoothing,0.08,0.983,0.0047,0.9804,0.0128,0.8814,0.0289,0.9281,0.0205,High precision smoothing
-6. Vocab max_features=1000,Vocabulary Capacity,0.05,0.9765,0.006,0.8863,0.0317,0.9319,0.0162,0.9083,0.0223,Compact 1000-word vocabulary
-7. Vocab max_features=3000,Vocabulary Capacity,0.05,0.9838,0.0055,0.9666,0.0205,0.9008,0.0269,0.9325,0.023,Expanded 3000-word vocabulary
-8. Min_df=1 (no pruning),Document Frequency,0.05,0.9838,0.0054,0.9557,0.0267,0.9125,0.0275,0.9333,0.0222,Keep hapax legomena
-9. Min_df=3 (rare pruned),Document Frequency,0.05,0.9835,0.005,0.9498,0.0218,0.9164,0.0218,0.9327,0.0203,Prune words with frequency < 3
-"10. N-grams (1, 2)",N-gram Range,0.05,0.9809,0.0033,0.9888,0.0101,0.856,0.0206,0.9175,0.0148,Unigrams + Bigrams
-11. No Stop Words,Stop-Word Policy,0.05,0.9685,0.0056,0.9921,0.0065,0.753,0.0411,0.8556,0.0287,Retain common English stop words
-12. TF-IDF Representation,Feature Type,2.0,0.9714,0.0064,0.8692,0.0343,0.9086,0.0226,0.8881,0.024,TF-IDF features with scaled vs
+Experiment,Category,CV_Accuracy_Mean,CV_Accuracy_Std,CV_Precision_Mean,CV_Precision_Std,CV_Recall_Mean,CV_Recall_Std,CV_F1_Mean,CV_F1_Std,Description
+"1. Baseline (Raw, vs=1e-9)",Baseline,0.8231,0.0116,0.7067,0.0129,0.9515,0.0127,0.811,0.0116,Default unregularized GaussianNB on raw features
+2. Raw vs=1e-5,Raw Variance Sweep,0.683,0.0108,0.8311,0.0318,0.2573,0.0251,0.3923,0.0311,Raw features with minimal smoothing
+3. Raw vs=1e-2,Raw Variance Sweep,0.6497,0.0146,0.7985,0.076,0.1618,0.0254,0.2687,0.0386,Raw features with moderate smoothing
+4. Raw vs=0.05,Raw Variance Sweep,0.6447,0.0111,0.7858,0.0697,0.1499,0.0171,0.2515,0.0266,Raw features with vs=0.05
+5. Log1p vs=1e-9,Log1p Transformation,0.8281,0.0091,0.7145,0.0098,0.9478,0.0169,0.8147,0.0101,Log1p transform with default smoothing
+6. Log1p vs=1e-4,Log1p Transformation,0.8415,0.0105,0.7323,0.0128,0.95,0.011,0.827,0.0106,Log1p transform with vs=1e-4
+7. Log1p vs=1e-3,Log1p Transformation,0.8484,0.0121,0.7391,0.0148,0.9582,0.0076,0.8345,0.012,Log1p transform with vs=1e-3
+8. Log1p vs=1e-2,Log1p Transformation,0.8641,0.0171,0.7625,0.0238,0.959,0.0058,0.8494,0.0166,Log1p transform with vs=1e-2
+9. Log1p vs=0.05 (Selected),Log1p Transformation,0.8843,0.0127,0.8066,0.0189,0.9344,0.0139,0.8657,0.0141,Optimal Log1p + balanced variance regularization
+10. Log1p vs=0.10,Log1p Transformation,0.879,0.0173,0.81,0.0242,0.9105,0.014,0.8573,0.0195,Log1p with higher smoothing
+11. Log1p + StandardScaler,Scaling & Standardization,0.8391,0.0101,0.73,0.0117,0.947,0.0132,0.8244,0.0107,Log1p followed by unit variance scaling
+12. Word Features Only (48),Feature Subset,0.8162,0.0118,0.694,0.0134,0.9649,0.0069,0.8073,0.011,Exclude punctuation and capital run-lengths

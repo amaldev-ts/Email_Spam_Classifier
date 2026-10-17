@@ -1,18 +1,18 @@
 """
 main.py
 -------
-End-to-end training, cross-validation, evaluation, and artifact generation
-for Gaussian Naïve Bayes spam classification.
+End-to-end training, 5-fold cross-validation, test evaluation, and artifact generation
+for Gaussian Naïve Bayes email classification on the UCI Spambase dataset.
 
 Strict Machine Learning Workflow:
-  1. Load, validate, and clean dataset (check for bad lines, conflicting labels, duplicates).
-  2. Perform stratified train/test split (80/20, seed=42). Test set is completely isolated.
+  1. Load, audit, and validate the UCI Spambase dataset (check conflicts, duplicates, types).
+  2. Stratified 80/20 train/test split (seed=42). Held-out test set is strictly isolated.
   3. Run 5-fold Stratified Cross-Validation ON TRAINING DATA ONLY across systematic
-     GaussianNB configurations (smoothing, vocabulary size, min_df, n-grams, feature types).
-  4. Refit the selected optimal GaussianNB model on the full training set.
-  5. Evaluate the final model ONCE on the held-out test set. Also evaluate baseline for direct contrast.
-  6. Extract False Positives and False Negatives for qualitative error analysis.
-  7. Persist model artifacts, metric reports, CSV tables, and visualization plots.
+     GaussianNB configurations (smoothing values, log1p transformation, scaling, feature subsets).
+  4. Refit the selected optimal GaussianNB pipeline on the full training set.
+  5. Evaluate the final model ONCE on the held-out test set; compare against the raw baseline.
+  6. Extract False Positives and False Negatives for qualitative diagnostic error analysis.
+  7. Persist model artifacts, metric summaries, CSV tables, and visualization plots.
 
 CLI Usage:
     python main.py                  -> train, CV benchmark, evaluate, save
@@ -27,12 +27,12 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import FunctionTransformer, StandardScaler
 
-from data_loader import load_dataset
+from data_loader import FEATURE_NAMES, load_dataset
 from evaluate import (
     compute_metrics,
     extract_errors,
@@ -44,144 +44,137 @@ from evaluate import (
 from model import (
     DEFAULT_VAR_SMOOTHING,
     OUTPUT_DIR,
-    build_gaussian_nb_pipeline,
+    build_spambase_pipeline,
     save_artifacts,
     train_model,
 )
 from predict import run_interactive
-from preprocessing import (
-    MAX_FEATURES,
-    MIN_DOC_FREQ,
-    build_vectorizer,
-    fit_vectorizer,
-    make_dense_transformer,
-    transform_texts,
-)
+from preprocessing import make_log1p_transformer
 
 RANDOM_SEED = 42
 TEST_SIZE = 0.20
 
 
 def run_cross_validation_experiments(
-    X_train_text: pd.Series, y_train: pd.Series, output_dir: Path = OUTPUT_DIR
+    X_train: pd.DataFrame, y_train: pd.Series, output_dir: Path = OUTPUT_DIR
 ) -> pd.DataFrame:
     """
-    Run 5-Fold Stratified Cross-Validation on the training partition only.
-    Tests smoothing, vocabulary size, min_df, n-grams, and feature representation.
+    Execute 5-Fold Stratified Cross-Validation strictly on the training partition.
+    Evaluates variance smoothing values, log1p transformation, scaling, and feature subsets.
     """
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
     scoring = ["accuracy", "precision", "recall", "f1"]
 
+    # First 48 features are word frequencies
+    word_feature_names = FEATURE_NAMES[:48]
+
     experiment_definitions = [
         {
             "id": 1,
-            "name": "1. Baseline (vs=1e-9)",
+            "name": "1. Baseline (Raw, vs=1e-9)",
             "category": "Baseline",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 1e-9,
-            "description": "Unregularized default GaussianNB",
+            "pipeline": Pipeline([("classifier", GaussianNB(var_smoothing=1e-9))]),
+            "features": "all",
+            "description": "Default unregularized GaussianNB on raw features",
         },
         {
             "id": 2,
-            "name": "2. Smoothing vs=1e-5",
-            "category": "Variance Smoothing",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 1e-5,
-            "description": "Minimal smoothing",
+            "name": "2. Raw vs=1e-5",
+            "category": "Raw Variance Sweep",
+            "pipeline": Pipeline([("classifier", GaussianNB(var_smoothing=1e-5))]),
+            "features": "all",
+            "description": "Raw features with minimal smoothing",
         },
         {
             "id": 3,
-            "name": "3. Smoothing vs=1e-2",
-            "category": "Variance Smoothing",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 1e-2,
-            "description": "Moderate smoothing",
+            "name": "3. Raw vs=1e-2",
+            "category": "Raw Variance Sweep",
+            "pipeline": Pipeline([("classifier", GaussianNB(var_smoothing=1e-2))]),
+            "features": "all",
+            "description": "Raw features with moderate smoothing",
         },
         {
             "id": 4,
-            "name": "4. Smoothing vs=0.05",
-            "category": "Variance Smoothing",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 0.05,
-            "description": "Balanced regularization (optimal)",
+            "name": "4. Raw vs=0.05",
+            "category": "Raw Variance Sweep",
+            "pipeline": Pipeline([("classifier", GaussianNB(var_smoothing=0.05))]),
+            "features": "all",
+            "description": "Raw features with vs=0.05",
         },
         {
             "id": 5,
-            "name": "5. Smoothing vs=0.08",
-            "category": "Variance Smoothing",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 0.08,
-            "description": "High precision smoothing",
+            "name": "5. Log1p vs=1e-9",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=1e-9))]),
+            "features": "all",
+            "description": "Log1p transform with default smoothing",
         },
         {
             "id": 6,
-            "name": "6. Vocab max_features=1000",
-            "category": "Vocabulary Capacity",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=1000, min_df=2),
-            "var_smoothing": 0.05,
-            "description": "Compact 1000-word vocabulary",
+            "name": "6. Log1p vs=1e-4",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=1e-4))]),
+            "features": "all",
+            "description": "Log1p transform with vs=1e-4",
         },
         {
             "id": 7,
-            "name": "7. Vocab max_features=3000",
-            "category": "Vocabulary Capacity",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=3000, min_df=2),
-            "var_smoothing": 0.05,
-            "description": "Expanded 3000-word vocabulary",
+            "name": "7. Log1p vs=1e-3",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=1e-3))]),
+            "features": "all",
+            "description": "Log1p transform with vs=1e-3",
         },
         {
             "id": 8,
-            "name": "8. Min_df=1 (no pruning)",
-            "category": "Document Frequency",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=1),
-            "var_smoothing": 0.05,
-            "description": "Keep hapax legomena",
+            "name": "8. Log1p vs=1e-2",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=1e-2))]),
+            "features": "all",
+            "description": "Log1p transform with vs=1e-2",
         },
         {
             "id": 9,
-            "name": "9. Min_df=3 (rare pruned)",
-            "category": "Document Frequency",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=3),
-            "var_smoothing": 0.05,
-            "description": "Prune words with frequency < 3",
+            "name": "9. Log1p vs=0.05 (Selected)",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=0.05))]),
+            "features": "all",
+            "description": "Optimal Log1p + balanced variance regularization",
         },
         {
             "id": 10,
-            "name": "10. N-grams (1, 2)",
-            "category": "N-gram Range",
-            "vec": CountVectorizer(lowercase=True, stop_words="english", ngram_range=(1, 2), max_features=2000, min_df=2),
-            "var_smoothing": 0.05,
-            "description": "Unigrams + Bigrams",
+            "name": "10. Log1p vs=0.10",
+            "category": "Log1p Transformation",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=0.10))]),
+            "features": "all",
+            "description": "Log1p with higher smoothing",
         },
         {
             "id": 11,
-            "name": "11. No Stop Words",
-            "category": "Stop-Word Policy",
-            "vec": CountVectorizer(lowercase=True, stop_words=None, max_features=2000, min_df=2),
-            "var_smoothing": 0.05,
-            "description": "Retain common English stop words",
+            "name": "11. Log1p + StandardScaler",
+            "category": "Scaling & Standardization",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("scaler", StandardScaler()), ("classifier", GaussianNB(var_smoothing=0.01))]),
+            "features": "all",
+            "description": "Log1p followed by unit variance scaling",
         },
         {
             "id": 12,
-            "name": "12. TF-IDF Representation",
-            "category": "Feature Type",
-            "vec": TfidfVectorizer(lowercase=True, stop_words="english", max_features=2000, min_df=2),
-            "var_smoothing": 2.0,
-            "description": "TF-IDF features with scaled vs",
+            "name": "12. Word Features Only (48)",
+            "category": "Feature Subset",
+            "pipeline": Pipeline([("log", make_log1p_transformer()), ("classifier", GaussianNB(var_smoothing=0.05))]),
+            "features": "words_only",
+            "description": "Exclude punctuation and capital run-lengths",
         },
     ]
 
     results = []
     for exp in experiment_definitions:
-        pipe = Pipeline([
-            ("vectorizer", exp["vec"]),
-            ("to_dense", make_dense_transformer()),
-            ("classifier", GaussianNB(var_smoothing=exp["var_smoothing"])),
-        ])
+        X_curr = X_train[word_feature_names] if exp["features"] == "words_only" else X_train
+        pipe = exp["pipeline"]
 
         cv_scores = cross_validate(
             pipe,
-            X_train_text,
+            X_curr,
             y_train,
             cv=cv,
             scoring=scoring,
@@ -200,7 +193,6 @@ def run_cross_validation_experiments(
         results.append({
             "Experiment": exp["name"],
             "Category": exp["category"],
-            "var_smoothing": exp["var_smoothing"],
             "CV_Accuracy_Mean": round(acc_mean, 4),
             "CV_Accuracy_Std": round(acc_std, 4),
             "CV_Precision_Mean": round(prec_mean, 4),
@@ -222,8 +214,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     """Full leak-free execution: validate -> split -> CV search -> fit -> test -> save."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 1. Dataset Acquisition, Validation, and Cleaning
-    print("[1/7] Loading and validating dataset...")
+    # 1. Dataset Loading, Auditing, and Validation
+    print("[1/7] Loading and auditing UCI Spambase dataset...")
     df, info = load_dataset(data_path)
     print(f"      Source file          : {info['file']}")
     print(f"      Physical file lines  : {info['physical_lines']:,}")
@@ -231,63 +223,53 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     print(f"      Malformed lines      : {info['bad_lines_skipped']}")
     print(f"      Missing rows removed : {info['missing_removed']}")
     print(f"      Invalid label rows   : {info['invalid_labels_removed']}")
-    print(f"      Empty text rows      : {info['empty_text_removed']}")
-    print(f"      Conflicting labels   : {info['conflicting_labels_detected']} detected ({info['conflicting_rows_removed']} rows removed)")
+    print(f"      Conflicting groups   : {info['conflicting_groups_detected']} detected ({info['conflicting_rows_removed']} rows removed)")
     print(f"      Duplicates removed   : {info['duplicates_removed']:,}")
-    print(f"      Cleaned dataset      : {info['rows_final']:,} messages")
+    print(f"      Cleaned dataset      : {info['rows_final']:,} email instances")
     print(f"      Class distribution   : Ham = {info['ham_count']:,} ({info['ham_pct']:.2f}%), Spam = {info['spam_count']:,} ({info['spam_pct']:.2f}%)")
 
     plot_class_distribution(df["label"], OUTPUT_DIR / "class_distribution.png")
 
     # 2. Stratified Train/Test Split (80/20)
     print("[2/7] Splitting dataset into stratified train and test partitions...")
-    X_train_text, X_test_text, y_train, y_test = train_test_split(
-        df["text"],
-        df["label"],
+    X = df[FEATURE_NAMES]
+    y = df["label"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
         test_size=test_size,
         random_state=seed,
-        stratify=df["label"],
+        stratify=y,
     )
-    print(f"      Training partition   : {len(X_train_text):,} samples (Ham: {(y_train == 0).sum():,}, Spam: {(y_train == 1).sum():,})")
-    print(f"      Held-out test set    : {len(X_test_text):,} samples (Ham: {(y_test == 0).sum():,}, Spam: {(y_test == 1).sum():,})")
+    print(f"      Training partition   : {len(X_train):,} samples (Ham: {(y_train == 0).sum():,}, Spam: {(y_train == 1).sum():,})")
+    print(f"      Held-out test set    : {len(X_test):,} samples (Ham: {(y_test == 0).sum():,}, Spam: {(y_test == 1).sum():,})")
     print("      Note: Held-out test set is STRICTLY ISOLATED during model tuning.")
 
     # 3. Stratified 5-Fold Cross-Validation on Training Data Only
     print("[3/7] Running 5-Fold Stratified Cross-Validation on training data across GaussianNB configurations...")
-    df_cv = run_cross_validation_experiments(X_train_text, y_train, OUTPUT_DIR)
+    df_cv = run_cross_validation_experiments(X_train, y_train, OUTPUT_DIR)
     print("      Saved CV results to: outputs/cv_experiments.csv")
 
     # 4. Fit Final Selected GaussianNB Model on Full Training Set
-    print(f"[4/7] Fitting selected GaussianNB model on full training set (var_smoothing={DEFAULT_VAR_SMOOTHING})...")
-    vectorizer, X_train_dense = fit_vectorizer(
-        X_train_text, max_features=MAX_FEATURES, min_df=MIN_DOC_FREQ, stop_words="english"
-    )
-    final_model = train_model(X_train_dense, y_train, var_smoothing=DEFAULT_VAR_SMOOTHING)
+    print(f"[4/7] Fitting selected GaussianNB model on full training set (Log1p + var_smoothing={DEFAULT_VAR_SMOOTHING})...")
+    final_pipeline = train_model(X_train, y_train, use_log=True, var_smoothing=DEFAULT_VAR_SMOOTHING)
 
-    # Also build full end-to-end Pipeline
-    final_pipeline = Pipeline([
-        ("vectorizer", vectorizer),
-        ("to_dense", make_dense_transformer()),
-        ("classifier", final_model),
-    ])
-
-    # Also fit unregularized baseline model for rigorous before/after comparison
-    baseline_model = train_model(X_train_dense, y_train, var_smoothing=1e-9)
+    # Also fit raw baseline model for direct before/after contrast
+    baseline_pipeline = train_model(X_train, y_train, use_log=False, var_smoothing=1e-9)
 
     # 5. Held-Out Test Set Evaluation
     print("[5/7] Evaluating final model and baseline on held-out test set...")
-    X_test_dense = transform_texts(vectorizer, X_test_text)
-
-    y_pred_final = final_model.predict(X_test_dense)
-    y_pred_baseline = baseline_model.predict(X_test_dense)
+    y_pred_final = final_pipeline.predict(X_test)
+    y_pred_baseline = baseline_pipeline.predict(X_test)
 
     final_metrics = compute_metrics(y_test, y_pred_final)
     baseline_metrics = compute_metrics(y_test, y_pred_baseline)
 
-    # Save test comparison table
     test_comp_df = pd.DataFrame([
         {
-            "Model": "Baseline GaussianNB (Unregularized)",
+            "Model": "Baseline GaussianNB (Raw, vs=1e-9)",
+            "Transform": "None (Raw)",
             "var_smoothing": 1e-9,
             "Accuracy": round(baseline_metrics["accuracy"], 4),
             "Precision": round(baseline_metrics["precision"], 4),
@@ -298,7 +280,8 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
             "FN_Count": baseline_metrics["fn"],
         },
         {
-            "Model": "Final Regularized GaussianNB",
+            "Model": "Final Improved GaussianNB (Log1p + vs=0.05)",
+            "Transform": "Log1p",
             "var_smoothing": DEFAULT_VAR_SMOOTHING,
             "Accuracy": round(final_metrics["accuracy"], 4),
             "Precision": round(final_metrics["precision"], 4),
@@ -313,29 +296,29 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
 
     # 6. Qualitative and Quantitative Error Analysis
     print("[6/7] Extracting False Positives and False Negatives for error analysis...")
-    df_errors = extract_errors(y_test, y_pred_final, X_test_text)
+    df_errors = extract_errors(y_test, y_pred_final, X_test, feature_names=FEATURE_NAMES)
     df_errors.to_csv(OUTPUT_DIR / "error_analysis.csv", index=False)
     n_fp = (df_errors["Error_Type"] == "False Positive").sum()
     n_fn = (df_errors["Error_Type"] == "False Negative").sum()
     print(f"      Total test errors: {len(df_errors)}  (False Positives: {n_fp}, False Negatives: {n_fn})")
 
-    # 7. Persistence and Formatting
+    # 7. Persistence and Reports
     print("[7/7] Persisting artifacts and reports...")
     run_info = {
         "file": info["file"],
         "total": len(df),
         "ham": info["ham_count"],
         "spam": info["spam_count"],
-        "train_size": len(X_train_text),
-        "test_size": len(X_test_text),
-        "vocab_size": len(vectorizer.vocabulary_),
+        "train_size": len(X_train),
+        "test_size": len(X_test),
+        "num_features": len(FEATURE_NAMES),
         "seed": seed,
         "var_smoothing": DEFAULT_VAR_SMOOTHING,
     }
     metrics_text = format_metrics_text(final_metrics, run_info, baseline_metrics=baseline_metrics)
     save_metrics_text(metrics_text, OUTPUT_DIR / "metrics.txt")
     plot_confusion_matrix(final_metrics["confusion_matrix"], OUTPUT_DIR / "confusion_matrix.png")
-    save_artifacts(final_model, vectorizer, pipeline=final_pipeline, output_dir=OUTPUT_DIR)
+    save_artifacts(final_pipeline, output_dir=OUTPUT_DIR)
 
     # Console Summary
     print("\n" + metrics_text)
@@ -351,15 +334,14 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     print(test_comp_df.to_string(index=False))
 
     print("\n" + "=" * 80)
-    print("QUALITATIVE ERROR SAMPLES (From outputs/error_analysis.csv)")
+    print("SAMPLE TEST ERRORS (From outputs/error_analysis.csv)")
     print("=" * 80)
     if not df_errors.empty:
         for err_type in ["False Positive", "False Negative"]:
             subset = df_errors[df_errors["Error_Type"] == err_type]
             print(f"\n--- Sample {err_type}s ({len(subset)} total) ---")
             for idx, row in subset.head(3).iterrows():
-                preview = row["Message"][:90] + ("..." if len(row["Message"]) > 90 else "")
-                print(f"  * [{row['Actual']} -> {row['Predicted']}] {preview}")
+                print(f"  * [Index {row['Sample_Index']}] Top features: {row['Top_Indicative_Features']}")
 
     print("\nAll artifacts successfully saved to 'outputs/':")
     print("  - metrics.txt                : Complete metrics report and discussion")
@@ -368,16 +350,15 @@ def train_and_evaluate(data_path=None, test_size: float = TEST_SIZE, seed: int =
     print("  - error_analysis.csv         : Full list of FP and FN misclassifications")
     print("  - confusion_matrix.png       : Annotated confusion matrix heatmap")
     print("  - class_distribution.png     : Class distribution bar chart")
+    print("  - spambase_gaussian_nb_pipeline.joblib : Full fitted Pipeline")
     print("  - gaussian_nb_model.joblib   : Trained GaussianNB classifier")
-    print("  - count_vectorizer.joblib    : Fitted CountVectorizer")
-    print("  - spam_classifier_pipeline.joblib : End-to-end Pipeline")
-    print("\nClassify interactive messages with:  python main.py --predict")
+    print("\nClassify emails with:  python predict.py --text \"...\"")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Spam classifier using Gaussian Naive Bayes.")
-    parser.add_argument("--data", help="Path to dataset file (default: auto-detect in data/)")
-    parser.add_argument("--predict", action="store_true", help="Classify messages interactively using saved model")
+    parser = argparse.ArgumentParser(description="UCI Spambase classifier using Gaussian Naive Bayes.")
+    parser.add_argument("--data", help="Path to spambase.data file (default: auto-detect in data/)")
+    parser.add_argument("--predict", action="store_true", help="Classify messages interactively")
     parser.add_argument("--test-size", type=float, default=TEST_SIZE, help="Held-out test fraction (default: 0.20)")
     args = parser.parse_args()
 

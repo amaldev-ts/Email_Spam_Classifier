@@ -1,19 +1,21 @@
 """
 evaluate.py
 -----------
-Evaluation metrics computation, plotting, error analysis, and report formatting.
+Evaluation metrics computation, plotting, error analysis, and report formatting
+for the UCI Spambase email classification system.
 
 Conventions:
-    Class 0: Ham (legitimate message) - Negative Class
+    Class 0: Ham (Legitimate Email) - Negative Class
     Class 1: Spam - Positive Class for Precision, Recall, and F1-score.
 """
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 import matplotlib
-matplotlib.use("Agg")  # Non-interactive backend suitable for scripts and servers
+matplotlib.use("Agg")  # Non-interactive backend
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.metrics import (
@@ -25,7 +27,9 @@ from sklearn.metrics import (
     recall_score,
 )
 
-CLASS_NAMES = ["Ham", "Spam"]
+from data_loader import FEATURE_NAMES
+
+CLASS_NAMES = ["Ham (Non-Spam)", "Spam"]
 
 
 def compute_metrics(y_true, y_pred) -> Dict:
@@ -51,30 +55,47 @@ def compute_metrics(y_true, y_pred) -> Dict:
     }
 
 
-def extract_errors(y_true, y_pred, texts) -> pd.DataFrame:
+def extract_errors(
+    y_true,
+    y_pred,
+    X_features: Union[pd.DataFrame, np.ndarray],
+    feature_names: List[str] = FEATURE_NAMES,
+) -> pd.DataFrame:
     """
-    Extract all misclassified samples (False Positives and False Negatives)
-    along with their original text for qualitative error analysis.
+    Extract all misclassified test cases (False Positives and False Negatives)
+    with the top non-zero indicative features for qualitative diagnostic analysis.
     """
-    y_true_list = list(y_true)
-    y_pred_list = list(y_pred)
-    texts_list = list(texts)
+    if isinstance(X_features, np.ndarray):
+        X_df = pd.DataFrame(X_features, columns=feature_names)
+    else:
+        X_df = X_features.reset_index(drop=True)
+
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
 
     rows = []
-    for true_val, pred_val, text in zip(y_true_list, y_pred_list, texts_list):
-        if true_val == 0 and pred_val == 1:
+    for i in range(len(y_true_arr)):
+        actual = y_true_arr[i]
+        pred = y_pred_arr[i]
+
+        if actual != pred:
+            err_type = "False Positive" if (actual == 0 and pred == 1) else "False Negative"
+            
+            # Find the top 3 highest feature values in this sample
+            sample_feats = X_df.iloc[i]
+            top_feats = sample_feats[sample_feats > 0].sort_values(ascending=False).head(4)
+            top_feat_str = "; ".join([f"{k}={v:.2f}" for k, v in top_feats.items()]) if not top_feats.empty else "All features ~0"
+
             rows.append({
-                "Error_Type": "False Positive",
-                "Actual": "Ham",
-                "Predicted": "Spam",
-                "Message": text,
-            })
-        elif true_val == 1 and pred_val == 0:
-            rows.append({
-                "Error_Type": "False Negative",
-                "Actual": "Spam",
-                "Predicted": "Ham",
-                "Message": text,
+                "Sample_Index": i,
+                "Error_Type": err_type,
+                "Actual": "Ham" if actual == 0 else "Spam",
+                "Predicted": "Spam" if pred == 1 else "Ham",
+                "Top_Indicative_Features": top_feat_str,
+                "capital_run_total": float(sample_feats.get("capital_run_length_total", 0.0)),
+                "char_freq_dollar": float(sample_feats.get("char_freq_$", 0.0)),
+                "char_freq_exclamation": float(sample_feats.get("char_freq_!", 0.0)),
+                "word_freq_free": float(sample_feats.get("word_freq_free", 0.0)),
             })
 
     return pd.DataFrame(rows)
@@ -98,7 +119,7 @@ def plot_class_distribution(labels, path: Path) -> None:
         pct = (value / total) * 100
         ax.text(
             i,
-            value + 25,
+            value + 35,
             f"{value:,}\n({pct:.1f}%)",
             ha="center",
             va="bottom",
@@ -106,16 +127,16 @@ def plot_class_distribution(labels, path: Path) -> None:
             fontweight="bold",
         )
 
-    ax.set_title("Class Distribution (Cleaned Dataset)", fontsize=12, fontweight="bold")
+    ax.set_title("Class Distribution (UCI Spambase)", fontsize=12, fontweight="bold")
     ax.set_xlabel("Class", fontsize=11)
-    ax.set_ylabel("Number of Messages", fontsize=11)
+    ax.set_ylabel("Number of Email Instances", fontsize=11)
     ax.set_ylim(0, max(counts) * 1.15)
     plt.tight_layout()
     plt.savefig(path, dpi=150)
     plt.close()
 
 
-def plot_confusion_matrix(cm, path: Path, title: str = "Confusion Matrix (Gaussian Naive Bayes)") -> None:
+def plot_confusion_matrix(cm, path: Path, title: str = "Confusion Matrix (Spambase GaussianNB)") -> None:
     """Plot annotated heatmap of the confusion matrix."""
     plt.figure(figsize=(6, 5))
     total = cm.sum()
@@ -148,20 +169,21 @@ def plot_confusion_matrix(cm, path: Path, title: str = "Confusion Matrix (Gaussi
     plt.close()
 
 
-def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Dict = None) -> str:
+def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Optional[Dict] = None) -> str:
     """Format comprehensive evaluation results and trade-off commentary."""
     cm = metrics["confusion_matrix"]
     tn, fp, fn, tp = (int(v) for v in cm.ravel())
     fpr = metrics["false_positive_rate"]
 
     lines = [
-        "EMAIL/SMS SPAM CLASSIFICATION - GAUSSIAN NAIVE BAYES",
+        "EMAIL SPAM CLASSIFICATION - UCI SPAMBASE (GAUSSIAN NAIVE BAYES)",
         "=" * 64,
-        f"Dataset File       : {run_info['file']}",
-        f"Total Messages     : {run_info['total']:,}  (Ham: {run_info['ham']:,}, Spam: {run_info['spam']:,})",
+        f"Dataset File       : {run_info['file']} (UCI Spambase Email Dataset)",
+        f"Total Instances    : {run_info['total']:,}  (Ham: {run_info['ham']:,}, Spam: {run_info['spam']:,})",
         f"Training Samples   : {run_info['train_size']:,}",
         f"Testing Samples    : {run_info['test_size']:,}",
-        f"Vocabulary Size    : {run_info['vocab_size']:,} words",
+        f"Input Features     : {run_info['num_features']} continuous features",
+        f"Feature Transform  : Log1p Transformation (log(1 + x))",
         f"Variance Smoothing : {run_info.get('var_smoothing', 0.05)}",
         f"Random Seed        : {run_info['seed']}",
         "",
@@ -190,13 +212,13 @@ def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Dict = 
         d_fpr = (fpr - b_fpr) * 100
 
         lines.extend([
-            "COMPARISON AGAINST UNREGULARIZED BASELINE (var_smoothing=1e-9):",
+            "COMPARISON AGAINST UNREGULARIZED RAW BASELINE (Raw Features, var_smoothing=1e-9):",
             f"  Accuracy    : {b_acc*100:.2f}%  ->  {metrics['accuracy']*100:.2f}%  ({d_acc:+.2f}%)",
             f"  Precision   : {b_prec*100:.2f}%  ->  {metrics['precision']*100:.2f}%  ({d_prec:+.2f}%)",
             f"  Recall      : {b_rec*100:.2f}%  ->  {metrics['recall']*100:.2f}%  ({d_rec:+.2f}%)",
             f"  F1-Score    : {b_f1*100:.2f}%  ->  {metrics['f1']*100:.2f}%  ({d_f1:+.2f}%)",
             f"  FP Rate     : {b_fpr*100:.2f}%  ->  {fpr*100:.2f}%  ({d_fpr:+.2f}%)",
-            f"  False Positives dropped from {b_fp} down to {fp} ({((b_fp - fp)/b_fp)*100:.1f}% reduction).",
+            f"  False Positives: {b_fp} in baseline vs {fp} in improved model.",
             "",
         ])
 
@@ -207,27 +229,21 @@ def format_metrics_text(metrics: Dict, run_info: Dict, baseline_metrics: Dict = 
         f"Actual Ham       {tn:<15d} {fp:<15d}",
         f"Actual Spam      {fn:<15d} {tp:<15d}",
         "",
-        f"True Negatives  (TN) = {tn:<5d} : Legitimate messages correctly left in Inbox.",
-        f"False Positives (FP) = {fp:<5d} : Legitimate messages incorrectly flagged as Spam.",
-        f"False Negatives (FN) = {fn:<5d} : Spam messages that slipped into Inbox.",
-        f"True Positives  (TP) = {tp:<5d} : Spam messages successfully filtered.",
+        f"True Negatives  (TN) = {tn:<5d} : Legitimate emails correctly delivered to Inbox.",
+        f"False Positives (FP) = {fp:<5d} : Legitimate emails incorrectly flagged as Spam.",
+        f"False Negatives (FN) = {fn:<5d} : Spam emails that slipped into Inbox.",
+        f"True Positives  (TP) = {tp:<5d} : Spam emails successfully intercepted.",
         "",
         "CLASSIFICATION REPORT",
         "-" * 64,
         metrics["report"],
-        "PRECISION-RECALL TRADE-OFF & OPERATIONAL SIGNIFICANCE",
+        "METHODOLOGICAL ANALYSIS & GAUSSIAN DISTRIBUTION FIT",
         "-" * 64,
-        "In spam filtering, False Positives carry a far higher operational cost than",
-        "False Negatives. A missed legitimate email (e.g., job offer, verification code,",
-        "or urgent business communication) can cause severe real-world harm. In contrast,",
-        "a false negative is merely an annoyance easily discarded by the user.",
-        "",
-        "Unregularized GaussianNB collapses on sparse text features because rare words",
-        "induce near-zero variances. A single unexpected token in a legitimate message",
-        "yields an astronomically small Gaussian probability density, falsely labeling",
-        "the message as spam. Regularizing feature variances via var_smoothing=0.05",
-        "resolves variance collapse, driving Precision up by +53.67% while maintaining",
-        "over 92% Recall on held-out test data.",
+        "The UCI Spambase dataset comprises 57 continuous attributes. Many features",
+        "(word percentages and capital letter run lengths) exhibit severe right-skewness",
+        "with heavy zero-inflation. Applying a Log1p transformation maps these skewed",
+        "distributions closer to the bell-shaped Gaussian density required by GaussianNB,",
+        "while tuning var_smoothing provides variance regularization against outliers.",
     ])
     return "\n".join(lines)
 

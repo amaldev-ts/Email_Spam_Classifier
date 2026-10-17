@@ -1,78 +1,80 @@
-# Email/SMS Spam Classification Using Gaussian Naïve Bayes
+# Email Spam Classification Using Gaussian Naïve Bayes (UCI Spambase)
 
-A production-grade, reproducible machine learning system that classifies messages as **Spam** or **Not Spam (Ham)** strictly implementing scikit-learn's **Gaussian Naïve Bayes (`GaussianNB`)** algorithm with variance smoothing regularization and leak-free 5-fold cross-validation.
+A production-grade, reproducible machine learning system that classifies emails as **Spam** or **Not Spam (Ham)** strictly implementing scikit-learn's **Gaussian Naïve Bayes (`GaussianNB`)** algorithm on the official **UCI Spambase** dataset with Log-Transform distribution alignment and leak-free 5-fold cross-validation.
 
-> **Dataset Scope Disclosure:** The dataset used is the benchmark **UCI SMS Spam Collection** (Almeida et al.), consisting of **SMS text messages, not emails**. While the vectorization and classification pipeline is structurally identical for email body text, SMS messages have distinct characteristics (shorter lengths, mobile colloquialisms, phone numbers, and urgent promotional language) and lack email transport headers, SPF/DKIM authentication, MIME attachment types, and domain reputations.
+> **Dataset Scope:** The dataset used is the benchmark **UCI Spambase** (Hopkins et al., HP Labs, 1999), consisting of **4,601 genuine email instances** characterized by **57 continuous attributes** (48 word-frequency percentages, 6 character-frequency percentages, and 3 capital letter run-length statistics).
 
 ---
 
 ## 1. Project Overview & Performance Highlights
 
-This project addresses the classic "zero-variance collapse" problem that occurs when applying continuous `GaussianNB` models to discrete, sparse bag-of-words text. By calibrating variance smoothing (`var_smoothing = 0.05`), selecting parameters via **5-Fold Stratified Cross-Validation on the training partition only**, and evaluating on a strictly isolated held-out test partition ($N = 1,032$), **all target metrics improved substantially**:
+This project addresses the distributional challenges of applying continuous `GaussianNB` to skewed percentage and run-length attributes. By applying a **Log1p transformation ($\ln(1 + x)$)** and calibrating variance smoothing (`var_smoothing = 0.05`) strictly via **5-Fold Stratified Cross-Validation on the training partition only**, the classifier achieves superior performance on the held-out test partition ($N = 841$):
 
-| Metric | Original Baseline (`var_smoothing=1e-9`) | Regularized Model (`var_smoothing=0.05`) | Absolute Improvement ($\Delta$) | Relative Improvement |
+| Metric | Raw Baseline (`var_smoothing=1e-9`) | Improved Model (Log1p + `vs=0.05`) | Absolute Delta ($\Delta$) | Relative Change |
 | :--- | :---: | :---: | :---: | :---: |
-| **Accuracy** | 82.95% | **98.45%** | **+15.50%** | +18.69% |
-| **Spam Precision** | 41.49% | **95.16%** | **+53.67%** | +129.36% |
-| **Spam Recall** | 91.41% | **92.19%** | **+0.78%** | +0.85% |
-| **Spam F1-Score** | 57.07% | **93.65%** | **+36.58%** | +64.10% |
-| **False Positive Rate** | 18.25% (165 FP) | **0.66% (6 FP)** | **-17.59%** | **-96.36% (FP dropped)** |
+| **Accuracy** | 82.52% | **87.40%** | **+4.88%** | +5.91% |
+| **Spam Precision** | 70.35% | **78.13%** | **+7.79%** | +11.07% |
+| **Spam Recall** | 97.01% | **94.93%** | **-2.09%** | -2.15% |
+| **Spam F1-Score** | 81.56% | **85.71%** | **+4.16%** | +5.10% |
+| **False Positive Rate** | 27.08% (137 FP) | **17.59% (89 FP)** | **-9.49%** | **-35.04% (FP dropped)** |
 
-### Confusion Matrix Comparison (Held-Out Test Set: 904 Ham, 128 Spam)
+### Confusion Matrix (Held-Out Test Set: 506 Ham, 335 Spam)
 
 ```
-BASELINE MODEL (var_smoothing = 1e-9):
+RAW BASELINE MODEL:
                      Predicted Ham    Predicted Spam
-Actual Ham (904) :        739              165       (165 False Positives! Precision = 41.49%)
-Actual Spam (128):         11              117       (11 False Negatives, Recall = 91.41%)
+Actual Ham (506) :        369              137       (137 False Positives, Precision = 70.35%)
+Actual Spam (335):         10              325       (10 False Negatives, Recall = 97.01%)
 
-FINAL REGULARIZED MODEL (var_smoothing = 0.05):
+IMPROVED MODEL (Log1p + vs=0.05):
                      Predicted Ham    Predicted Spam
-Actual Ham (904) :        898                6       (Only 6 False Positives! Precision = 95.16%)
-Actual Spam (128):         10              118       (10 False Negatives, Recall = 92.19%)
+Actual Ham (506) :        417               89       (False Positives cut by 35.0% to 89!)
+Actual Spam (335):         17              318       (17 False Negatives, Recall = 94.93%)
 ```
 
 ---
 
-## 2. Theoretical Root Cause & Mathematical Solution
+## 2. Theoretical Foundations: Why Log1p & Variance Smoothing Work
 
-### The Problem: Zero-Variance Collapse
-In bag-of-words text matrices, most words appear in only a tiny fraction of documents. For a word that occurs rarely or never in legitimate ham messages, its sample variance $\sigma_{\text{ham}, i}^2$ collapses near zero. Under default `var_smoothing = 1e-9`, when a new test ham message contains that word ($x_i = 1$), the Gaussian standardized z-score:
-$$z = \frac{1 - \mu_{\text{ham}, i}}{\sigma_{\text{ham}, i}}$$
-explodes ($z > 50$), driving the class likelihood $P(x_i \mid \text{ham})$ to under $10^{-500}$. Even if all other words are standard legitimate terms, this single feature's extreme likelihood penalty forces GaussianNB to falsely classify the message as spam (producing 165 False Positives and 41.49% precision in the baseline).
+### The Problem: Variance Scale Disparity & Right-Skew
+In UCI Spambase, feature variances span orders of magnitude:
+- Word percentages have small variances ($\sigma^2 \sim 0.01$).
+- Capital letter run lengths span up to $15,841$ with variances exceeding $3.7 \times 10^5$.
 
-### The Solution: Variance Smoothing Regularization
-In `GaussianNB`, `var_smoothing` regularizes feature variances by adding a fraction $\epsilon$ of the maximum feature variance across all features:
-$$\sigma_{C,i,\text{smoothed}}^2 = \sigma_{C,i}^2 + \epsilon \cdot \max_{j}(\sigma_j^2)$$
-Setting `var_smoothing = 0.05` establishes an additive variance floor that prevents single-word variance collapse, driving precision up by **+53.67%** while maintaining over **92% recall**.
+Because scikit-learn computes variance smoothing globally ($\sigma_{C,i,\text{regularized}}^2 = \sigma_{C,i}^2 + \text{var\_smoothing} \times \max(\sigma^2)$), setting smoothing on raw features adds massive variance to word frequencies, destroying their signal.
+
+### The Solution: Log1p Transformation
+Applying `Log1p` ($x' = \ln(1 + x)$):
+1. Contracts long-tailed, right-skewed distributions toward a normal Gaussian bell curve.
+2. Compresses the variance range, allowing `var_smoothing = 0.05` to provide balanced regularization across all 57 features simultaneously.
 
 ---
 
 ## 3. Strict, Leak-Free Evaluation Methodology
 
 ```
-Cleaned Dataset (5,160 messages: 4,518 Ham, 642 Spam)
-                      │
-                      ▼
-        Stratified Split (80/20, seed=42)
-         ┌────────────┴────────────┐
-         ▼                         ▼
-Training Partition (4,128)      Held-Out Test Set (1,032)
-(3,614 Ham, 514 Spam)           (904 Ham, 128 Spam)
-         │                                 │
-         ▼                                 │ (Strictly isolated;
-5-Fold Stratified CV                       │  never seen during tuning)
-(Tune smoothing, vocab, min_df, n-grams)   │
-         │                                 │
-         ▼                                 ▼
-Fit Final Model on Full Train ────► Single Final Test Evaluation
-                                   (Produces test metrics & error analysis)
+Cleaned Spambase Dataset (4,204 instances: 2,528 Ham, 1,676 Spam)
+                            │
+                            ▼
+           Stratified Split (80/20, seed=42)
+            ┌───────────────┴───────────────┐
+            ▼                               ▼
+Training Partition (3,363)              Held-Out Test Set (841)
+(2,022 Ham, 1,341 Spam)                 (506 Ham, 335 Spam)
+            │                                   │
+            ▼                                   │ (Strictly isolated;
+5-Fold Stratified CV                            │  never seen during tuning)
+(Tune smoothing, transforms, subsets)           │
+            │                                   │
+            ▼                                   ▼
+Fit Final Model on Full Train ──────────► Single Final Test Evaluation
+                                         (Produces test metrics & error analysis)
 ```
 
-1. **Dataset Validation:** Raw file is parsed with malformed line tracking, conflict verification (0 conflicting labels detected), and deduplication (414 duplicates removed).
-2. **Data Isolation:** Stratified 80/20 train/test split (`seed=42`) isolates 1,032 test samples.
-3. **Training CV Only:** All model parameter exploration is conducted using **5-Fold Stratified Cross-Validation exclusively on the 4,128 training samples**.
-4. **Single Test Evaluation:** The final model is evaluated once on the test partition, preventing test set contamination.
+1. **Dataset Audit:** 4,601 raw rows parsed; 3 conflicting feature groups (6 rows) filtered; 391 duplicates removed.
+2. **Data Isolation:** Stratified 80/20 split (`seed=42`) isolates 841 test samples.
+3. **Training CV Only:** All model exploration is conducted using **5-Fold Stratified Cross-Validation exclusively on the 3,363 training instances**.
+4. **Single Test Evaluation:** Final model evaluated once on the test partition, preventing contamination.
 
 ---
 
@@ -80,20 +82,20 @@ Fit Final Model on Full Train ────► Single Final Test Evaluation
 
 Saved automatically as `outputs/cv_experiments.csv`:
 
-| Experiment | Category | `var_smoothing` | CV Accuracy | CV Precision | CV Recall | CV F1-Score |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| 1. Baseline (vs=1e-9) | Baseline | $1.0 \times 10^{-9}$ | $84.40\% \pm 0.64\%$ | $43.92\% \pm 1.13\%$ | $91.25\% \pm 1.62\%$ | $59.30\% \pm 1.36\%$ |
-| 2. Smoothing vs=1e-5 | Variance Sweep | $1.0 \times 10^{-5}$ | $84.40\% \pm 0.64\%$ | $43.92\% \pm 1.13\%$ | $91.25\% \pm 1.62\%$ | $59.30\% \pm 1.36\%$ |
-| 3. Smoothing vs=1e-2 | Variance Sweep | $1.0 \times 10^{-2}$ | $93.10\% \pm 2.60\%$ | $66.52\% \pm 8.93\%$ | $94.55\% \pm 1.90\%$ | $77.82\% \pm 6.76\%$ |
-| **4. Smoothing vs=0.05** | **Variance Sweep** | **$5.0 \times 10^{-2}$** | **$98.35\% \pm 0.56\%$** | **$95.52\% \pm 2.21\%$** | **$91.05\% \pm 2.91\%$** | **$93.22\% \pm 2.31\%$** |
-| 5. Smoothing vs=0.08 | Variance Sweep | $8.0 \times 10^{-2}$ | $98.30\% \pm 0.47\%$ | $98.04\% \pm 1.28\%$ | $88.14\% \pm 2.89\%$ | $92.81\% \pm 2.05\%$ |
-| 6. Vocab max_features=1000 | Vocab Capacity | $5.0 \times 10^{-2}$ | $97.65\% \pm 0.60\%$ | $88.63\% \pm 3.17\%$ | $93.19\% \pm 1.62\%$ | $90.83\% \pm 2.23\%$ |
-| 7. Vocab max_features=3000 | Vocab Capacity | $5.0 \times 10^{-2}$ | $98.38\% \pm 0.55\%$ | $96.66\% \pm 2.05\%$ | $90.08\% \pm 2.69\%$ | $93.25\% \pm 2.30\%$ |
-| 8. Min_df=1 (no pruning) | Document Freq | $5.0 \times 10^{-2}$ | $98.38\% \pm 0.54\%$ | $95.57\% \pm 2.67\%$ | $91.25\% \pm 2.75\%$ | $93.33\% \pm 2.22\%$ |
-| 9. Min_df=3 (rare pruned) | Document Freq | $5.0 \times 10^{-2}$ | $98.35\% \pm 0.50\%$ | $94.98\% \pm 2.18\%$ | $91.64\% \pm 2.18\%$ | $93.27\% \pm 2.03\%$ |
-| 10. N-grams (1, 2) | N-gram Range | $5.0 \times 10^{-2}$ | $98.09\% \pm 0.33\%$ | $98.88\% \pm 1.01\%$ | $85.60\% \pm 2.06\%$ | $91.75\% \pm 1.48\%$ |
-| 11. No Stop Words | Stop-Words | $5.0 \times 10^{-2}$ | $96.85\% \pm 0.56\%$ | $99.21\% \pm 0.65\%$ | $75.30\% \pm 4.11\%$ | $85.56\% \pm 2.87\%$ |
-| 12. TF-IDF Representation | Feature Type | $2.0 \times 10^{0}$ | $97.14\% \pm 0.64\%$ | $86.92\% \pm 3.43\%$ | $90.86\% \pm 2.26\%$ | $88.81\% \pm 2.40\%$ |
+| # | Experiment Configuration | Category | `var_smoothing` | CV Accuracy | CV Precision | CV Recall | CV F1-Score |
+| :-: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| 1 | Baseline (Raw, vs=1e-9) | Baseline | $1.0 \times 10^{-9}$ | $82.31\% \pm 1.16\%$ | $70.67\% \pm 1.29\%$ | $95.15\% \pm 1.27\%$ | $81.10\% \pm 1.16\%$ |
+| 2 | Raw vs=1e-5 | Raw Variance | $1.0 \times 10^{-5}$ | $68.30\% \pm 1.08\%$ | $83.11\% \pm 3.18\%$ | $25.73\% \pm 2.51\%$ | $39.23\% \pm 3.11\%$ |
+| 3 | Raw vs=1e-2 | Raw Variance | $1.0 \times 10^{-2}$ | $64.97\% \pm 1.46\%$ | $79.85\% \pm 7.60\%$ | $16.18\% \pm 2.54\%$ | $26.87\% \pm 3.86\%$ |
+| 4 | Raw vs=0.05 | Raw Variance | $5.0 \times 10^{-2}$ | $64.47\% \pm 1.11\%$ | $78.58\% \pm 6.97\%$ | $14.99\% \pm 1.71\%$ | $25.15\% \pm 2.66\%$ |
+| 5 | Log1p vs=1e-9 | Log1p Transform | $1.0 \times 10^{-9}$ | $82.81\% \pm 0.91\%$ | $71.45\% \pm 0.98\%$ | $94.78\% \pm 1.69\%$ | $81.47\% \pm 1.01\%$ |
+| 6 | Log1p vs=1e-4 | Log1p Transform | $1.0 \times 10^{-4}$ | $84.15\% \pm 1.05\%$ | $73.23\% \pm 1.28\%$ | $95.00\% \pm 1.10\%$ | $82.70\% \pm 1.06\%$ |
+| 7 | Log1p vs=1e-3 | Log1p Transform | $1.0 \times 10^{-3}$ | $84.84\% \pm 1.21\%$ | $73.91\% \pm 1.48\%$ | $95.82\% \pm 0.76\%$ | $83.45\% \pm 1.20\%$ |
+| 8 | Log1p vs=1e-2 | Log1p Transform | $1.0 \times 10^{-2}$ | $86.41\% \pm 1.71\%$ | $76.25\% \pm 2.38\%$ | $95.90\% \pm 0.58\%$ | $84.94\% \pm 1.66\%$ |
+| **9** | **Log1p vs=0.05 (Selected)** | **Log1p Transform** | **$5.0 \times 10^{-2}$** | **$88.43\% \pm 1.27\%$** | **$80.66\% \pm 1.89\%$** | **$93.44\% \pm 1.39\%$** | **$86.57\% \pm 1.41\%$** |
+| 10 | Log1p vs=0.10 | Log1p Transform | $1.0 \times 10^{-1}$ | $87.90\% \pm 1.73\%$ | $81.00\% \pm 2.42\%$ | $91.05\% \pm 1.40\%$ | $85.73\% \pm 1.95\%$ |
+| 11 | Log1p + StandardScaler | Scaling | $1.0 \times 10^{-2}$ | $83.91\% \pm 1.01\%$ | $73.00\% \pm 1.17\%$ | $94.70\% \pm 1.32\%$ | $82.44\% \pm 1.07\%$ |
+| 12 | Word Features Only (48) | Feature Subset | $5.0 \times 10^{-2}$ | $81.62\% \pm 1.18\%$ | $69.40\% \pm 1.34\%$ | $96.49\% \pm 0.69\%$ | $80.73\% \pm 1.10\%$ |
 
 ---
 
@@ -102,26 +104,27 @@ Saved automatically as `outputs/cv_experiments.csv`:
 ```
 Email_Spam_Classifier/
 ├── main.py                          # Full pipeline: validation, CV, train, test, save
-├── data_loader.py                   # Data reading, malformed line tracking, conflict check
-├── preprocessing.py                 # Text cleaning, CountVectorizer, dense float32 conversion
+├── data_loader.py                   # Data reading, 58-column schema, conflict check, auditing
+├── preprocessing.py                 # Feature definitions, Log1p transform, raw-email feature engine
 ├── model.py                         # GaussianNB definition, var_smoothing, pipeline export
 ├── evaluate.py                      # Metrics, confusion matrix, error analysis extraction
-├── predict.py                       # CLI inference with calibrated probability output
+├── predict.py                       # CLI inference supporting raw email text & feature rows
 ├── requirements.txt                 # Exact dependency specifications
 ├── README.md                        # Project documentation
 ├── report.md                        # Formal CST413 academic report (10-section structure)
 ├── data/
-│   └── SMSSpamCollection            # UCI SMS Spam Collection benchmark dataset
+│   ├── spambase.data                # Official UCI Spambase dataset (4,601 instances)
+│   ├── spambase.names               # Official attribute definitions
+│   └── spambase.DOCUMENTATION       # HP Labs dataset documentation
 └── outputs/
     ├── metrics.txt                  # Full test set evaluation metrics & baseline comparison
     ├── cv_experiments.csv           # 12-configuration 5-fold cross-validation results table
     ├── test_comparison.csv          # Held-out test set before/after comparison table
-    ├── error_analysis.csv           # Full text and labels of all test FP and FN errors
+    ├── error_analysis.csv           # Full diagnostic list of test FP and FN errors
     ├── confusion_matrix.png         # Confusion matrix heatmap with counts & percentages
     ├── class_distribution.png       # Cleaned dataset class distribution plot
-    ├── gaussian_nb_model.joblib     # Serialized GaussianNB classifier
-    ├── count_vectorizer.joblib      # Serialized CountVectorizer
-    └── spam_classifier_pipeline.joblib # Full scikit-learn Pipeline artifact
+    ├── spambase_gaussian_nb_pipeline.joblib # Full fitted Pipeline
+    └── gaussian_nb_model.joblib     # Trained GaussianNB classifier
 ```
 
 ---
@@ -138,37 +141,62 @@ pip install -r requirements.txt
 ```powershell
 python main.py
 ```
-This script runs the entire machine learning workflow:
-- Audits and cleans the dataset.
+This script executes the entire machine learning workflow:
+- Audits and cleans the UCI Spambase dataset.
 - Executes 5-fold Stratified Cross-Validation on the training data.
-- Refits the selected optimal model on the training partition.
+- Refits the optimal pipeline on the full training partition.
 - Evaluates the model on the held-out test partition.
 - Extracts misclassified samples to `outputs/error_analysis.csv`.
 - Generates all visualization plots and metrics files in `outputs/`.
 
-### 2. Classify Single Messages via CLI
+### 2. Classify Raw Email Messages via CLI
 ```powershell
-python predict.py --text "Congratulations! You have won a $1,000 Walmart gift card. Call 0800 now to claim."
+python predict.py --text "Claim your free money prize from our internet business now!"
 ```
 
 Output:
 ```
-==================================================
+====================================================
   PREDICTED CLASS  : SPAM
   Confidence Level : High Confidence
---------------------------------------------------
+----------------------------------------------------
   Ham Probability  : < 0.01%    (p = 0.0000)
   Spam Probability : > 99.99%   (p = 1.0000)
-==================================================
+====================================================
+  Top Detected Spambase Signals:
+    * word_freq_our               : 10.00
+    * word_freq_internet          : 10.00
+    * word_freq_free              : 10.00
+----------------------------------------------------
   * Note: Probabilities represent Gaussian Naive Bayes
-    posterior likelihoods under feature independence,
-    not empirical ground-truth certainty.
-==================================================
+    posterior likelihoods under feature independence.
+====================================================
 ```
 
-### 3. Interactive Shell Prediction
+### 3. Classify Legitimate Emails
+```powershell
+python predict.py --text "Hi George, please find attached the meeting notes for our lab project conference."
+```
+
+Output:
+```
+====================================================
+  PREDICTED CLASS  : HAM (Non-Spam)
+  Confidence Level : High Confidence
+----------------------------------------------------
+  Ham Probability  : > 99.99%   (p = 1.0000)
+  Spam Probability : < 0.01%    (p = 0.0000)
+====================================================
+  Top Detected Spambase Signals:
+    * word_freq_our               : 7.69
+    * word_freq_george            : 7.69
+    * word_freq_lab               : 7.69
+----------------------------------------------------
+```
+
+### 4. Interactive Shell Prediction
 ```powershell
 python main.py --predict
 ```
 
----
+

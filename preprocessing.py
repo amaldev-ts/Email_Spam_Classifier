@@ -1,92 +1,100 @@
 """
 preprocessing.py
 ----------------
-Text cleaning, numerical feature extraction, and dense array transformation.
+Feature definition, distributional transformation, and raw-email feature extraction
+for the UCI Spambase email classification system.
 
-Feature type: word frequency (bag-of-words) via CountVectorizer.
-
-Why dense arrays?
-    CountVectorizer generates a SPARSE matrix (storing only non-zero word counts).
-    scikit-learn's GaussianNB requires continuous feature values and does not accept
-    sparse matrices. Therefore, we convert the sparse matrix to a DENSE NumPy array
-    using .toarray() before training or inference.
-
-Memory Management:
-    A dense matrix stores every cell, including zeros:
-        Memory (bytes) = rows x columns x bytes_per_element
-    To maintain a light footprint:
-      1. We constrain the vocabulary (default max_features=2,000 words).
-      2. We cast to float32 (4 bytes per cell) instead of float64 (8 bytes).
-      Example: 4,128 training messages x 2,000 features x 4 bytes ~= 33 MB.
+This module provides:
+  1. The official 57-feature schema definitions from UCI Spambase.
+  2. An interactive `extract_spambase_features()` engine that converts any raw email
+     text into the exact 57 Spambase features (satisfies Requirement #2 of CST413).
+  3. Distributional transforms (Log1p transformation) to mitigate severe right-skewness
+     and align continuous features closer to Gaussian normality.
 """
 
+import re
+from typing import List, Union
+
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
+import pandas as pd
 from sklearn.preprocessing import FunctionTransformer
 
-# Default vocabulary settings
-MAX_FEATURES = 2000   # Most informative word features
-MIN_DOC_FREQ = 2      # Ignore words appearing in fewer than 2 messages
+from data_loader import FEATURE_NAMES, SPAMBASE_CHARS, SPAMBASE_WORDS
 
 
-def clean_text(text) -> str:
-    """Return text with nulls handled and redundant whitespace collapsed."""
+def clean_text(text: str) -> str:
+    """Normalize whitespace and strip null/non-string content."""
     if not isinstance(text, str):
         return ""
     return " ".join(text.split())
 
 
-def build_vectorizer(
-    max_features=MAX_FEATURES,
-    min_df=MIN_DOC_FREQ,
-    stop_words="english",
-    lowercase=True,
-    ngram_range=(1, 1),
-) -> CountVectorizer:
-    """Create a new, unfitted CountVectorizer for word-frequency extraction."""
-    return CountVectorizer(
-        lowercase=lowercase,
-        stop_words=stop_words,
-        max_features=max_features,
-        min_df=min_df,
-        ngram_range=ngram_range,
-    )
+def extract_spambase_features(text: str) -> np.ndarray:
+    """
+    Extract the 57 UCI Spambase continuous features from raw email text.
+
+    Feature Definitions (UCI Spambase Specification):
+      - 48 word frequencies: 100 * (count of WORD / total words in email).
+        Words are defined as strings of alphanumeric characters.
+      - 6 character frequencies: 100 * (count of CHAR / total characters in email).
+        Target characters: ';', '(', '[', '!', '$', '#'
+      - 3 capital letter run-length statistics:
+          * capital_run_length_average : mean length of contiguous uppercase runs
+          * capital_run_length_longest : maximum length of contiguous uppercase runs
+          * capital_run_length_total   : sum of all contiguous uppercase runs
+    
+    Returns:
+        np.ndarray of shape (57,) with dtype float64.
+    """
+    if not isinstance(text, str) or not text.strip():
+        # Fallback for empty text
+        return np.zeros(len(FEATURE_NAMES), dtype=np.float64)
+
+    # 1. Word Frequencies (48 attributes)
+    words = re.findall(r"[a-zA-Z0-9]+", text.lower())
+    total_words = len(words)
+    word_freqs = []
+    for target_word in SPAMBASE_WORDS:
+        count = sum(1 for w in words if w == target_word)
+        pct = (100.0 * count / total_words) if total_words > 0 else 0.0
+        word_freqs.append(pct)
+
+    # 2. Character Frequencies (6 attributes)
+    total_chars = len(text)
+    char_freqs = []
+    for target_char in SPAMBASE_CHARS:
+        count = text.count(target_char)
+        pct = (100.0 * count / total_chars) if total_chars > 0 else 0.0
+        char_freqs.append(pct)
+
+    # 3. Capital Run-Length Statistics (3 attributes)
+    capital_runs = [len(match) for match in re.findall(r"[A-Z]+", text)]
+    if capital_runs:
+        cap_avg = float(np.mean(capital_runs))
+        cap_longest = int(max(capital_runs))
+        cap_total = int(sum(capital_runs))
+    else:
+        cap_avg = 1.0
+        cap_longest = 1
+        cap_total = 0
+
+    features = word_freqs + char_freqs + [cap_avg, cap_longest, cap_total]
+    return np.array(features, dtype=np.float64)
 
 
-def to_dense(sparse_matrix) -> np.ndarray:
-    """Convert a scipy sparse matrix to a dense float32 NumPy array for GaussianNB."""
-    if hasattr(sparse_matrix, "toarray"):
-        return sparse_matrix.toarray().astype(np.float32)
-    return np.asarray(sparse_matrix, dtype=np.float32)
-
-
-def make_dense_transformer() -> FunctionTransformer:
-    """Return a scikit-learn compatible transformer for seamless Pipeline usage."""
+def make_log1p_transformer() -> FunctionTransformer:
+    """
+    Return a scikit-learn transformer that applies log(1 + x) to features.
+    
+    Why Log1p is Essential for GaussianNB on Spambase:
+      Percentages and run-length counts in Spambase are heavily zero-inflated
+      and right-skewed (capital_run_length_total spans 1 to 15,841).
+      Raw features violate the Gaussian normality assumption and cause feature
+      variances to span orders of magnitude (from 0.01 to 3.7e5).
+      Log1p stabilizes feature variances and maps skewed distributions into
+      bell-shaped, near-normal profiles compatible with GaussianNB.
+    """
     return FunctionTransformer(
-        func=to_dense,
-        accept_sparse=True,
+        func=np.log1p,
         validate=False,
     )
-
-
-def fit_vectorizer(train_texts, max_features=MAX_FEATURES, min_df=MIN_DOC_FREQ, stop_words="english"):
-    """
-    Fit the vectorizer on TRAINING text only (prevents test data leakage).
-    Returns (fitted_vectorizer, dense_training_features).
-    """
-    vectorizer = build_vectorizer(
-        max_features=max_features,
-        min_df=min_df,
-        stop_words=stop_words,
-    )
-    sparse_features = vectorizer.fit_transform(train_texts)
-    return vectorizer, to_dense(sparse_features)
-
-
-def transform_texts(vectorizer, texts):
-    """
-    Transform text using an ALREADY FITTED vectorizer (never re-fits).
-    Used for test partitions and new interactive prediction inputs.
-    """
-    sparse_features = vectorizer.transform(texts)
-    return to_dense(sparse_features)
